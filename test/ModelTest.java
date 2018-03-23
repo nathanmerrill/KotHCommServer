@@ -4,7 +4,7 @@ import org.junit.Test;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.test.WithApplication;
-import repository.ComputerRepository;
+import repository.ChallengeRepository;
 
 import java.util.Date;
 import java.util.Optional;
@@ -27,8 +27,8 @@ public class ModelTest extends WithApplication {
 
     @Test
     public void findById() {
-        final ComputerRepository computerRepository = app.injector().instanceOf(ComputerRepository.class);
-        final CompletionStage<Optional<Computer>> stage = computerRepository.lookup(21L);
+        final ChallengeRepository challengeRepository = app.injector().instanceOf(ChallengeRepository.class);
+        final CompletionStage<Optional<Computer>> stage = challengeRepository.lookup(21L);
 
         await().atMost(1, SECONDS).until(() ->
             assertThat(stage.toCompletableFuture()).isCompletedWithValueMatching(computerOptional -> {
@@ -40,8 +40,8 @@ public class ModelTest extends WithApplication {
     
     @Test
     public void pagination() {
-        final ComputerRepository computerRepository = app.injector().instanceOf(ComputerRepository.class);
-        CompletionStage<PagedList<Computer>> stage = computerRepository.page(1, 20, "name", "ASC", "");
+        final ChallengeRepository challengeRepository = app.injector().instanceOf(ChallengeRepository.class);
+        CompletionStage<PagedList<Computer>> stage = challengeRepository.page(1, 20, "name", "ASC", "");
 
         // Test the completed result
         await().atMost(1, SECONDS).until(() ->

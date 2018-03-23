@@ -1,30 +1,42 @@
 package models;
 
+import io.ebean.annotation.EnumValue;
 import play.data.validation.Constraints;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.util.List;
 
 
-@Entity 
+@Entity
+@Table(name="challenge")
 public class Challenge extends BaseModel {
 
     private static final long serialVersionUID = 1L;
 
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    public User owner;
+
     @Constraints.Required
+    @Column(nullable = false)
     public String name;
 
     @Constraints.Required
-    @ManyToOne
-    public User user;
+    @Column(nullable = false)
+    public Source source;
 
-    public Long sePostId;
-
-    public enum Matchmaker {
-        ADJACENT_GROUP,
-        SIMILAR_SCORE,
-        RANDOM_SAMPLE
+    public enum Source {
+        @EnumValue("StackExchange")
+        STACK_EXCHANGE
     }
+
+    public String refId;
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, targetEntity = Entry.class)
+    public List<Entry> entries;
+
+    @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, targetEntity = Tournament.class)
+    public List<Tournament> versions;
+
 
 }
 
