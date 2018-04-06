@@ -3,22 +3,28 @@
 # ~~~~
 
 # Default path will just redirect to the computer list
-GET     /                           controllers.HomeController.index()
+GET     /                            controllers.ChallengeController.index()
+GET     /challenges                  controllers.ChallengeController.list()
 
-# Computers list (look at the default values for pagination parameters)
-GET     /computers                  controllers.HomeController.list(p:Int ?= 0, s ?= "name", o ?= "asc", f ?= "")
+GET     /challenges/new              controllers.ChallengeController.create()
+POST    /challenges                  controllers.ChallengeController.save()
 
-# Add computer
-GET     /computers/new              controllers.HomeController.create()
-POST    /computers                  controllers.HomeController.save()
-
-# Edit existing computer
-GET     /computers/:id              controllers.HomeController.edit(id:Long)
-POST    /computers/:id              controllers.HomeController.update(id:Long)
-
-# Delete a computer
-POST    /computers/:id/delete       controllers.HomeController.delete(id:Long)
+GET     /challenges/:id              controllers.ChallengeController.view(id:Long)
+GET     /challenges/:id/edit         controllers.ChallengeController.edit(id:Long)
+POST    /challenges/:id              controllers.ChallengeController.update(id:Long)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                controllers.Assets.at(path="/public", file)
+
+GET     /login                       controllers.AuthenticationController.login()
+POST    /login                       controllers.AuthenticationController.auth()
+GET     /logout                      controllers.AuthenticationController.logout()
+GET     /register                    controllers.AuthenticationController.register()
+POST    /register                    controllers.AuthenticationController.registerSubmit()
+
+
+GET     /me                          controllers.UserController.me()
+GET     /users/:id                   controllers.UserController.view(id:Long)
+GET     /users/:id/edit              controllers.UserController.edit(id:Long)
+POST    /users/:id                   controllers.UserController.update(id:Long)
 

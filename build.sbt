@@ -10,6 +10,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies += guice
 libraryDependencies += jdbc
+libraryDependencies += evolutions
 libraryDependencies += "com.h2database" % "h2" % "1.4.196"
 
 libraryDependencies += "org.awaitility" % "awaitility" % "2.0.0" % Test

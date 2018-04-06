@@ -8,7 +8,7 @@ import play.data.validation.Constraints;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @MappedSuperclass
 public class BaseModel extends Model {
@@ -19,5 +19,5 @@ public class BaseModel extends Model {
     @Column(nullable = false)
     @CreatedTimestamp
     @Formats.DateTime(pattern="yyyy-MM-dd HH:mm:ss")
-    public Date createdAt;
+    public LocalDateTime createdAt;
 }

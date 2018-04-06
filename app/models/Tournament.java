@@ -1,5 +1,6 @@
 package models;
 
+import io.ebean.annotation.EnumValue;
 import play.data.validation.Constraints;
 import validators.JsonValidator;
 
@@ -19,8 +20,7 @@ public class Tournament extends BaseModel {
 
     @Constraints.Required
     @Column(nullable = false)
-    @Version
-    public String versionId;
+    public String version;
 
     /**
      * The following parameters make a tournament unique.
@@ -45,6 +45,7 @@ public class Tournament extends BaseModel {
 
     @Constraints.ValidateWith(JsonValidator.class)
     @Constraints.Required
+    @Lob
     @Column(nullable = false)
     public String scoringParameters;
 
@@ -56,19 +57,30 @@ public class Tournament extends BaseModel {
 
 
     public enum Matchmaker {
+        @EnumValue("SimilarScore")
         SIMILAR_SCORE,
+        @EnumValue("RandomSample")
         RANDOM_SAMPLE,
-        //TODO: Figure out if it's possible to do round-robin
     }
 
     public enum Scorer {
-        AVERAGE,
+        @EnumValue("ArithmeticMean")
+        ARITHMETIC_MEAN,
+        @EnumValue("GeometricMean")
+        GEOMETRIC_MEAN,
+        @EnumValue("Maximum")
         MAXIMUM,
+        @EnumValue("Minimum")
         MINIMUM,
+        @EnumValue("Median")
         MEDIAN,
+        @EnumValue("Elo")
         ELO,
-        MAXIMIZE_AFFIRMED_MAJORITIES,
+        @EnumValue("Condorcet")
+        CONDORCET,
+        @EnumValue("SingleTransferableVote")
         SINGLE_TRANSFERRABLE_VOTE,
+        @EnumValue("RankPoints")
         RANK_POINTS
     }
 

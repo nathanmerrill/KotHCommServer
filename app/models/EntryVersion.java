@@ -8,11 +8,11 @@ import java.util.List;
 
 
 @Entity
-@Table(name="entry")
+@Table(name="entry_version")
 public class EntryVersion extends BaseModel {
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, optional = false)
     public Entry entry;
 
     @Constraints.Required

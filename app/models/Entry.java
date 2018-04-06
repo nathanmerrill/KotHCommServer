@@ -7,7 +7,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name="challenge_entry")
+@Table(name="entry")
 public class Entry extends BaseModel {
 
     private static final long serialVersionUID = 1L;
