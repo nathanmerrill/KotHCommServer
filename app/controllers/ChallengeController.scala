@@ -6,12 +6,11 @@ import play.api.mvc._
 import repository.ChallengeRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.data.FormFactory
 
 @Singleton
-class ChallengeController @Inject()(val controllerComponents: ControllerComponents, challenges: ChallengeRepository, formFactory: FormFactory) extends BaseController {
+class ChallengeController @Inject()(val cc: ControllerComponents, challenges: ChallengeRepository) extends AbstractController(cc) with play.api.i18n.I18nSupport{
 
-  def index: Action[AnyContent] = Action.async {
+  def index: Action[AnyContent] = Action.async { implicit request =>
     challenges.all().map(list => {
 
       Ok(views.html.list.render(list))
@@ -23,14 +22,14 @@ class ChallengeController @Inject()(val controllerComponents: ControllerComponen
     *
     * @param id Id of the computer to edit
     */
-  def edit(id: Long): Action[AnyContent] = Action.async{
+  def edit(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).map {
       case None => Results.NotFound
-      case Some(c) => Ok(views.html.editForm.render(id, formFactory.form(classOf[Challenge]).fill(c)))
+      case Some(c) => Ok("HI") //views.html.editForm.render(id, formFactory.form(classOf[Challenge]).fill(c)))
     }
   }
 
-  def view(id: Long): Action[AnyContent] = Action.async{
+  def view(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).map(_ => Ok("test"))
   }
 

@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit session: play.api.mvc.Session = play.api.mvc.Session())
+@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
 
 <!DOCTYPE html>
 <html lang="en">

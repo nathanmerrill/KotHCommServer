@@ -1,4 +1,4 @@
-@(id: Long, challengeForm: play.data.Form[Challenge])
+@(id: Long, challengeForm: play.api.data.Form[Challenge])(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
 
 @import helper._
 
@@ -7,7 +7,8 @@
     @form(routes.ChallengeController.edit(id)) {
 
         <fieldset>
-            @CSRF.formField            @inputText(challengeForm("name"), '_label -> "Challenge name", '_help -> "")
+            @CSRF.formField
+            @inputText(challengeForm("name"), '_label -> "Challenge name", '_help -> "")
             @inputText(challengeForm("introduced"), '_label -> "Introduced date", '_help -> "")
             @inputText(challengeForm("discontinued"), '_label -> "Discontinued date", '_help -> "")
 

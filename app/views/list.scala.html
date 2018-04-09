@@ -1,4 +1,4 @@
-@(challenges: scala.List[Challenge])
+@(challenges: scala.List[Challenge])(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main(title = "Challenges", back = Some(routes.ChallengeController.index())){
 

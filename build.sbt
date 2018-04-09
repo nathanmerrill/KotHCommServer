@@ -3,7 +3,7 @@ organization := "com.nathanm"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayJava, PlayEbean)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 
 scalaVersion := "2.12.4"
 

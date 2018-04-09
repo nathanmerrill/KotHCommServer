@@ -1,7 +1,8 @@
-@main(title = "Login"){
+@()(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
+@main(title = "Login")){
 
     <div id="actions">
-        <label for="searchbox">@Messages("Search:")
+        <label for="searchbox">Search:
             <input type="search" id="searchbox" class="search" placeholder="Challenge Name" />
         </label>
     </div>
