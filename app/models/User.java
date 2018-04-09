@@ -1,7 +1,6 @@
 package models;
 
 import io.ebean.annotation.EnumValue;
-import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,22 +12,18 @@ public class User extends BaseModel {
 
     private static final long serialVersionUID = 1L;
 
-    @Constraints.Required
     @Column(unique = true, nullable = false)
     public String username;
 
-    @Constraints.Required
     @Column(nullable = false)
     @Lob
     public String authentication;
 
-    @Constraints.Required
     @Column(nullable = false)
     public String name;
 
     public String stackExchangeID;
 
-    @Constraints.Required
     public UserRole role;
 
     public enum UserRole {

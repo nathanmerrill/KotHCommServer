@@ -1,7 +1,6 @@
 package models;
 
 import io.ebean.annotation.EnumValue;
-import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
@@ -9,18 +8,16 @@ import java.util.List;
 
 @Entity
 @Table(name="challenge")
-public class Challenge extends BaseModel {
+public class Challenge extends BaseModel {  //TODO: look into Anorm, Slick, Doobie, Squeryl
 
     private static final long serialVersionUID = 1L;
 
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     public User owner;
 
-    @Constraints.Required
     @Column(nullable = false)
     public String name;
 
-    @Constraints.Required
     @Column(nullable = false)
     public Source source;
 

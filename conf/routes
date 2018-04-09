@@ -3,7 +3,7 @@
 # ~~~~
 
 # Default path will just redirect to the computer list
-GET     /                            controllers.HomeController.index()
+GET     /                            controllers.ChallengeController.index()
 GET     /challenges                  controllers.ChallengeController.index()
 #
 #GET     /challenges/new              controllers.ChallengeController.create()
@@ -27,4 +27,5 @@ GET     /assets/*file                controllers.Assets.versioned(path="/public"
 #GET     /users/:id                   controllers.UserController.view(id:Long)
 #GET     /users/:id/edit              controllers.UserController.edit(id:Long)
 #POST    /users/:id                   controllers.UserController.update(id:Long)
+# Login page
 

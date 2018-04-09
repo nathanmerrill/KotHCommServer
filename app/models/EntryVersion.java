@@ -1,7 +1,6 @@
 package models;
 
 import io.ebean.annotation.EnumValue;
-import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
@@ -15,16 +14,13 @@ public class EntryVersion extends BaseModel {
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     public Entry entry;
 
-    @Constraints.Required
     @Column(nullable = false)
     public String name;
 
-    @Constraints.Required
     @Column(nullable = false)
     @Lob
     public String code;
 
-    @Constraints.Required
     @Column(nullable = false)
     public Language language;
 
@@ -33,7 +29,6 @@ public class EntryVersion extends BaseModel {
         JAVA
     }
 
-    @Constraints.Required
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "version", targetEntity = TournamentEntry.class)
     public List<TournamentEntry> tournamentEntries;
 

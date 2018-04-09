@@ -4,12 +4,12 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
+@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)
+@*(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)*@
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        @* Here's where we render the page title `String`. *@
         <title>@title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -22,11 +22,6 @@
     </head>
     <body>
         <div class="user-management u-pull-right">
-        @session.get("user").map { user =>
-        <a href="">Welcome, @user</a>
-        }.getOrElse{
-            <a href="">Login</a>
-        }
         </div>
         <div class="container">
             <header>

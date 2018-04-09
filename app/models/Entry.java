@@ -1,6 +1,5 @@
 package models;
 
-import play.data.validation.Constraints;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,7 +17,6 @@ public class Entry extends BaseModel {
     @ManyToOne(optional = false)
     public Challenge challenge;
 
-    @Constraints.Required
     @Column(nullable = false)
     public String currentName;
 

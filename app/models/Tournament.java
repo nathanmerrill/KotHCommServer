@@ -1,8 +1,6 @@
 package models;
 
 import io.ebean.annotation.EnumValue;
-import play.data.validation.Constraints;
-import validators.JsonValidator;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,11 +12,9 @@ public class Tournament extends BaseModel {
 
     private static final long serialVersionUID = 1L;
 
-    @Constraints.Required
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     public Challenge challenge;
 
-    @Constraints.Required
     @Column(nullable = false)
     public String version;
 
@@ -27,24 +23,18 @@ public class Tournament extends BaseModel {
      * If a user wants to change any one of them, it means we need to re-execute everything
      */
 
-    @Constraints.Required
     @Column(nullable = false)
     public String gitHash;
 
-    @Constraints.Required
     @Column(nullable = false)
     public Matchmaker matchmaker;
 
-    @Constraints.Required
     @Column(nullable = false)
     public Integer gameSize;
 
-    @Constraints.Required
     @Column(nullable = false)
     public Scorer scorer;
 
-    @Constraints.ValidateWith(JsonValidator.class)
-    @Constraints.Required
     @Lob
     @Column(nullable = false)
     public String scoringParameters;

@@ -1,9 +1,9 @@
-@(challenges: scala.List[Challenge])(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
+@(challenges: scala.List[Challenge])
 
 @main(title = "Challenges", back = Some(routes.ChallengeController.index())){
 
     <div id="actions">
-        <label for="searchbox">@Messages("Search:")
+        <label for="searchbox">Search:
             <input type="search" id="searchbox" class="search" placeholder="Challenge Name" />
         </label>
 
