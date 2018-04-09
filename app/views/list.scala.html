@@ -1,6 +1,6 @@
-@(challenges: java.util.List[Challenge])
+@(challenges: scala.List[Challenge])
 
-@main(title = "Challenges", back = Some(routes.ChallengeController.list())){
+@main(title = "Challenges", back = Some(routes.ChallengeController.index())){
 
     <div id="actions">
         <label for="searchbox">@Messages("Search:")

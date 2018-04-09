@@ -1,10 +1,10 @@
-@(computerForm: Form[Challenge])
+@(computerForm: play.data.Form[Challenge])
 
 @import helper._
 
 @main(title = "Add a Challenge") {
     
-    @form(routes.ChallengeController.save()) {
+    @form(routes.ChallengeController.index()) {
         
         <fieldset>
             @CSRF.formField
@@ -16,7 +16,7 @@
         
         <div class="actions">
             <input type="submit" value="Create this computer" class="btn primary"> or 
-            <a href="@routes.ChallengeController.list()" class="btn">Cancel</a>
+            <a href="@routes.ChallengeController.index()" class="btn">Cancel</a>
         </div>
         
     }

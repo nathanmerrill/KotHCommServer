@@ -1,19 +1,24 @@
-name := "play-java-ebean-example"
+name := """kothcommserver"""
+organization := "com.nathanm"
 
-version := "1.0.0-SNAPSHOT"
+version := "1.0-SNAPSHOT"
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala, PlayJava, PlayEbean)
 
 scalaVersion := "2.12.4"
 
-crossScalaVersions := Seq("2.11.12", "2.12.4")
-
-lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
+resolvers += Resolver.sonatypeRepo("releases")
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies += guice
 libraryDependencies += jdbc
 libraryDependencies += evolutions
-libraryDependencies += "com.h2database" % "h2" % "1.4.196"
 
-libraryDependencies += "org.awaitility" % "awaitility" % "2.0.0" % Test
-libraryDependencies += "org.assertj" % "assertj-core" % "3.6.2" % Test
-libraryDependencies += "org.mockito" % "mockito-core" % "2.1.0" % Test
-testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+libraryDependencies += "com.h2database" % "h2" % "1.4.196"
+libraryDependencies += "ws.securesocial" %% "securesocial" % "master-SNAPSHOT"
+libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+// Adds additional packages into Twirl
+//TwirlKeys.templateImports += "com.nathanm.controllers._"
+
+// Adds additional packages into conf/routes
+// play.sbt.routes.RoutesKeys.routesImport += "com.nathanm.binders._"
