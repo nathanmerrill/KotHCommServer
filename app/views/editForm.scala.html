@@ -1,4 +1,4 @@
-@(id: Long, challengeForm: play.api.data.Form[Challenge])
+@(id: Long, challengeForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
 @import helper._
 

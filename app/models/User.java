@@ -22,8 +22,6 @@ public class User extends BaseModel {
     @Column(nullable = false)
     public String name;
 
-    public String stackExchangeID;
-
     public UserRole role;
 
     public enum UserRole {

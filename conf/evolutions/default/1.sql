@@ -99,16 +99,14 @@ create index on tournament_entry (created_at);
 create table `user` (
   id                        bigint not null auto_increment,
   username                  varchar(255) not null unique,
-  authentication            text not null,
   name                      varchar(255) not null,
-  stack_exchange_id         varchar(255) not null,
   role                      varchar(255) not null,
+  authentication            text not null,
   created_at                timestamp not null,
   constraint pk_user primary key (id))
 ;
 
 create index on `user` (username);
-create index on `user` (stack_exchange_id);
 create index on `user` (created_at);
 
 

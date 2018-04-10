@@ -1,36 +1,53 @@
 package repository
 
 import javax.inject._
-import models.Challenge
+import models.User
 import play.db.ebean.EbeanConfig
 
 import scala.concurrent.Future
 
-class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContext: DatabaseExecutionContext) extends BaseRepository[Challenge] {
-  val modelClass: Class[Challenge] = classOf[Challenge]
+class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContext: DatabaseExecutionContext) extends BaseRepository[User] {
+  val modelClass: Class[User] = classOf[User]
 
-  def all(): Future[List[Challenge]] = getList {
-    query
-      .orderBy("createdAt")
-      .select("name,createdAt")
-      .fetch("owner", "id,name")
-  }
 
-  def view(id: Long): Future[Option[Challenge]] =
+  def view(id: Long): Future[Option[User]] =
     getOne {
       query
-        .select("id,name,stackExchangeId")
+        .select("id,username,name")
         .fetch("entries", "id,currentName")
-        .fetch("entries.challenge", "name")
-        .fetch("challenges", "id,name")
+        .fetch("entries.User", "name")
+        .fetch("Users", "id,name")
     }(id)
+  
+  def byUsername(username: String): Future[Option[User]] =
+    execute {
+      fetchByUsername(username)
+    }
 
-  def update(data: Challenge): Future[Option[Challenge]] = {
-    val toSave: Challenge = new Challenge
-    toSave.id = data.id
-    toSave.name = data.name
-    toSave.refId = data.refId
-    toSave.owner = data.owner
-    updateModel(data)
+  def insertOrUpdate(username: String, name: String, authentication: String): Future[User] ={
+    execute {
+      fetchByUsername(username) match {
+        case Some(user) =>
+          user.name = name
+          user.authentication = authentication
+          user.update()
+          user
+        case None =>
+          val user = new User
+          user.name = username
+          user.authentication = authentication
+          user.username = username
+          user.role = User.UserRole.STANDARD
+          user
+      }
+    }
   }
+
+  private def fetchByUsername(username: String): Option[User] = {
+    Option(query
+      .select("id,username,name,authentication,role")
+      .where().eq("username", username)
+      .findOne())
+  }
+
 }

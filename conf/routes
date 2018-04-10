@@ -29,3 +29,4 @@ GET     /assets/*file                controllers.Assets.versioned(path="/public"
 #POST    /users/:id                   controllers.UserController.update(id:Long)
 # Login page
 
+GET      /oauth/auth                  controllers.HomeController.auth()

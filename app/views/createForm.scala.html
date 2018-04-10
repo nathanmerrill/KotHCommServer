@@ -1,4 +1,4 @@
-@(computerForm: play.api.data.Form[Challenge])(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)
+@(computerForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
 @import helper._
 

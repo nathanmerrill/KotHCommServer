@@ -1,20 +1,22 @@
 +function(){
-    function url(base, params){
+    const baseUrl = window.location.protocol + "//" + window.location.hostname;
+    function url(params){
         if (!params){
-            return base;
+            return baseUrl;
         }
 
         const paramsEncoded = Object.keys(params)
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
             .join('&');
-        return base + "?" + paramsEncoded;
+        return baseUrl + "?" + paramsEncoded;
     }
     function auth(write){
         const scope = write ? "write_access,no_expiry" : "";
         window.location = url("https://stackoverflow.com/oauth", {
-            "client_id":window.oauth.clientId,
+            "client_id":window.kothcomm.oauthClient,
             "scope":scope,
-            "redirect_uri": "https://koth.nmerrill.com/oauth/code"
+            "redirect_uri": baseUrl+"/oauth/code",
+            "state": window.location.href
         })
     }
     function login() {

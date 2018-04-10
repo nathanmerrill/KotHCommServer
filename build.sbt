@@ -12,6 +12,8 @@ resolvers += Resolver.sonatypeRepo("releases")
 libraryDependencies += guice
 libraryDependencies += jdbc
 libraryDependencies += evolutions
+libraryDependencies += ws
+
 
 libraryDependencies += "com.h2database" % "h2" % "1.4.196"
 libraryDependencies += "com.github.dakatsuka" %% "akka-http-oauth2-client" % "0.1.0"
