@@ -4,7 +4,7 @@
  * two arguments, a `String` for the title of the page and an `Html`
  * object to insert into the body of the page.
  *@
-@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)
+@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit application: play.api.Application)
 @*(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)*@
 
 <!DOCTYPE html>
@@ -17,6 +17,9 @@
         <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.versioned("stylesheets/skeleton.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")"/>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <script>
+            window.oauth.client = @application.configuration.get("oauth.stackexchange.clientId");
+        </script>
         <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" defer async></script>
 
     </head>

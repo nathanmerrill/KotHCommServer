@@ -17,3 +17,8 @@ dist
 bin
 .DS_Store
 activator-sbt-*-shim.sbt
+application.conf
+.g8
+gradle/
+gradlew
+gradlew.bat

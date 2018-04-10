@@ -42,6 +42,6 @@ database.dispatcher {
 play.filters.headers.contentSecurityPolicy = "default-src 'self'; font-src 'self' https://fonts.gstatic.com/; style-src 'self' https://fonts.googleapis.com/ 'unsafe-inline';"
 
 
-oauth.stackexchange.clientId = "6851"
-oauth.stackexchange.secret = ")2bJBOMHonDa3uVqvWxBSg(("
-oauth.stackexchange.key = "DBmKLNOwBaGUo7bl4UXz0A(("
+oauth.stackexchange.clientId = ""
+oauth.stackexchange.secret = ""
+oauth.stackexchange.key = ""

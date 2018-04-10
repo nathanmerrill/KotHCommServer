@@ -14,6 +14,7 @@ libraryDependencies += jdbc
 libraryDependencies += evolutions
 
 libraryDependencies += "com.h2database" % "h2" % "1.4.196"
+libraryDependencies += "com.github.dakatsuka" %% "akka-http-oauth2-client" % "0.1.0"
 libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.nathanm.controllers._"
