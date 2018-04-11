@@ -1,25 +1,32 @@
-+function(){
-    const baseUrl = window.location.protocol + "//" + window.location.hostname;
-    function url(params){
-        if (!params){
-            return baseUrl;
++function () {
+    const config = JSON.parse(document.getElementById('kothcomm-config').textContent);
+    const url = (url, params) => {
+        if (!params) {
+            return url;
         }
 
         const paramsEncoded = Object.keys(params)
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
             .join('&');
-        return baseUrl + "?" + paramsEncoded;
-    }
-    function auth(write){
+        return url + "?" + paramsEncoded;
+    };
+    const auth = (write) => {
         const scope = write ? "write_access,no_expiry" : "";
-        window.location = url("https://stackoverflow.com/oauth", {
-            "client_id":window.kothcomm.oauthClient,
-            "scope":scope,
-            "redirect_uri": baseUrl+"/oauth/code",
+        window.location.href = url("https://stackoverflow.com/oauth", {
+            "client_id": config.oauthClient,
+            "scope": scope,
+            "redirect_uri": config.oauthRedirect,
             "state": window.location.href
         })
-    }
-    function login() {
-        auth(false);
+    };
+    const login = auth.bind(false);
+    const ready = () => {
+        document.getElementById("login").addEventListener('click', login, false);
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", ready);
+    } else {
+        ready();
     }
 }();

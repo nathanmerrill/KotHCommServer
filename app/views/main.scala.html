@@ -1,11 +1,4 @@
-@*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
-@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit configuration: play.api.Configuration)
-@*(implicit session: play.api.mvc.Session, request: RequestHeader, messagesProvider: MessagesProvider)*@
+@(title: String, back: Option[play.api.mvc.Call] = None)(content: Html)(implicit request: play.api.mvc.RequestHeader, configuration: play.api.Configuration)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,17 +10,17 @@
         <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.versioned("stylesheets/skeleton.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")"/>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <script>
-            window.kothcomm = {
-                oauthClient: "@configuration.get[String]("oauth.stackexchange.clientId")",
-                oauthRedirect: "@routes.HomeController.auth()",
+        <script id="kothcomm-config" type="application/x-configuration">
+            {
+                "oauthClient": "@configuration.get[String]("oauth.stackexchange.clientId")",
+                "oauthRedirect": "@routes.HomeController.auth().absoluteURL()"
             }
         </script>
         <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" defer async></script>
-
     </head>
     <body>
         <div class="user-management u-pull-right">
+            <a id="login" href="#">Login</a>
         </div>
         <div class="container">
             <header>
