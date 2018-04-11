@@ -1,4 +1,4 @@
-@(computerForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+@(challengeForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
 @import helper._
 
@@ -8,14 +8,13 @@
         
         <fieldset>
             @CSRF.formField
-            @inputText(computerForm("name"), '_label -> "Computer name", '_help -> "")
-            @inputText(computerForm("introduced"), '_label -> "Introduced date", '_help -> "")
-            @inputText(computerForm("discontinued"), '_label -> "Discontinued date", '_help -> "")
+            @inputText(challengeForm("repoUrl"), '_label -> "Repo URL", '_help -> "Url of the git repo to pull the latest controller", 'required -> "true")
 
+            @inputText(challengeForm("refId"), '_label -> "Stack exchange ID", '_help -> "StackExchange post to pull submissions from")
         </fieldset>
         
         <div class="actions">
-            <input type="submit" value="Create this computer" class="btn primary"> or 
+            <input type="submit" value="Create this challenge" class="btn primary"> or
             <a href="@routes.ChallengeController.index()" class="btn">Cancel</a>
         </div>
         

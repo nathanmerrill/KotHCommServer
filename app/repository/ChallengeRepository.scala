@@ -30,6 +30,7 @@ class ChallengeRepository @Inject()(val ebeanConfig: EbeanConfig, val executionC
     toSave.id = data.id
     toSave.name = data.name
     toSave.refId = data.refId
+    toSave.repoUrl = data.repoUrl
     toSave.owner = data.owner
     updateModel(data)
   }

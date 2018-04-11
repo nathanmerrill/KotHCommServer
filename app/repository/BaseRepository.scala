@@ -14,7 +14,7 @@ abstract class BaseRepository[T <: BaseModel] {
 
   protected def executionContext: DatabaseExecutionContext
 
-  private def ebeanServer: EbeanServer = Ebean.getServer(ebeanConfig.defaultServer)
+  protected def ebeanServer: EbeanServer = Ebean.getServer(ebeanConfig.defaultServer)
 
   protected def query: Query[T] = ebeanServer.find(modelClass)
 

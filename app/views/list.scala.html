@@ -1,14 +1,7 @@
 @(challenges: scala.List[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
-@main(title = "Challenges", back = Some(routes.ChallengeController.index())){
-
-    <div id="actions">
-        <label for="searchbox">Search:
-            <input type="search" id="searchbox" class="search" placeholder="Challenge Name" />
-        </label>
-
-    </div>
-
+@main(title = "Challenges:"){
+    <a href="@routes.ChallengeController.create()">New Challenge</a>
     <ul class="challenges list">
         @for(challenge <- challenges) {
             <li>

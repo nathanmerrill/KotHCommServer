@@ -5,8 +5,8 @@
 create table challenge (
   id                        bigint not null auto_increment,
   owner_id                  bigint not null,
-  name                      varchar(255),
-  source                    varchar(255),
+  name                      varchar(255) not null,
+  repo_url                  varchar(255) not null,
   ref_id                    varchar(255),
   created_at                timestamp not null,
   constraint pk_challenge primary key (id))
@@ -127,6 +127,8 @@ alter table tournament add foreign key (challenge_id) references challenge (id) 
 alter table tournament_entry add foreign key (version_id) references entry_version (id) on delete cascade on update cascade;
 alter table tournament_entry add foreign key (tournament_id) references tournament (id) on delete cascade on update cascade;
 
+insert into `user` (username, name, role, authentication, created_at)
+VALUES('20198', 'Nathan Merrill', 'Admin', '', CURRENT_TIMESTAMP())
 
 # --- !Downs
 

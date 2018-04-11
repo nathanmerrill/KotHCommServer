@@ -1,7 +1,5 @@
 package models;
 
-import io.ebean.annotation.EnumValue;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -19,12 +17,7 @@ public class Challenge extends BaseModel {  //TODO: look into Anorm, Slick, Doob
     public String name;
 
     @Column(nullable = false)
-    public Source source;
-
-    public enum Source {
-        @EnumValue("StackExchange")
-        STACK_EXCHANGE
-    }
+    public String repoUrl;
 
     public String refId;
 
@@ -33,7 +26,6 @@ public class Challenge extends BaseModel {  //TODO: look into Anorm, Slick, Doob
 
     @OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, targetEntity = Tournament.class)
     public List<Tournament> versions;
-
 
 }
 

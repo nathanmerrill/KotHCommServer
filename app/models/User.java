@@ -16,7 +16,6 @@ public class User extends BaseModel {
     public String username;
 
     @Column(nullable = false)
-    @Lob
     public String authentication;
 
     @Column(nullable = false)
@@ -25,8 +24,6 @@ public class User extends BaseModel {
     public UserRole role;
 
     public enum UserRole {
-        @EnumValue("Banned")
-        BANNED,
         @EnumValue("Standard")
         STANDARD,
         @EnumValue("Creator")

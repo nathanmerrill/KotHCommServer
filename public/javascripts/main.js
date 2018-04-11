@@ -21,7 +21,10 @@
     };
     const login = auth.bind(false);
     const ready = () => {
-        document.getElementById("login").addEventListener('click', login, false);
+        const loginElement = document.getElementById("login");
+        if (loginElement != null){
+            loginElement.addEventListener('click', login, false);
+        }
     };
 
     if (document.readyState === "loading") {

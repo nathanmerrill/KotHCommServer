@@ -6,8 +6,8 @@
 GET     /                            controllers.ChallengeController.index()
 GET     /challenges                  controllers.ChallengeController.index()
 #
-#GET     /challenges/new              controllers.ChallengeController.create()
-#POST    /challenges                  controllers.ChallengeController.save()
+GET     /challenges/new              controllers.ChallengeController.create()
+POST    /challenges                  controllers.ChallengeController.save()
 #
 GET     /challenges/:id              controllers.ChallengeController.view(id:Long)
 GET     /challenges/:id/edit         controllers.ChallengeController.edit(id:Long)
