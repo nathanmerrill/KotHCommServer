@@ -10,8 +10,8 @@ import play.api.data.Forms._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import helpers.Enum
+import play.api.libs.json.Json
 
 @Singleton
 class ChallengeController @Inject()(val cc: ControllerComponents, challenges: ChallengeRepository, users: UserRepository, controllers: Controllers, implicit val config: Configuration)
@@ -84,7 +84,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
   }
 
   def checkChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
-
+    return Ok(Json.toJson(Moments.all());
   }
 
   val challengeForm: Form[Challenge] = Form[Challenge](
