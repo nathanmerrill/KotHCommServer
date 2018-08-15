@@ -1,0 +1,32 @@
+@(challengeForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider)
+
+@import helper._
+@import helpers.Enum
+
+@if(challengeForm.hasErrors) {
+    <div class="alert alert-error">
+    @for(error <- challengeForm.errors) {
+        @for(message <- error.messages) {
+            @message
+        }
+    }
+    </div>
+}
+
+<fieldset>
+    @CSRF.formField
+    @inputText(challengeForm("name"), '_label -> "* Name", '_help -> "Name of your challenge", 'required -> "true")
+    @inputText(challengeForm("repoUrl"), '_label -> "* Repo URL", '_help -> "Url of the git repo to pull the latest controller", 'required -> "true")
+    @inputText(challengeForm("refId"), '_label -> "Stack exchange ID", '_help -> "StackExchange post ID to pull submissions from")
+    @select(challengeForm("language"),
+        options = Enum.enumValues(classOf[Challenge.Language]),
+        '_label -> "* Language",
+        '_help -> "The language used to run the controller")
+
+    @inputText(challengeForm("buildParameters"), '_label -> "* Process name", '_help -> "The full classname (com.sample.proj.MainClass for Java) or filepath (mypath/main.py for Python)")
+
+
+</fieldset>
+
+
+

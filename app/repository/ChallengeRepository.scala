@@ -1,8 +1,7 @@
 package repository
 
 import javax.inject._
-
-import models.Challenge
+import models.{Challenge, Tournament}
 import play.db.ebean.EbeanConfig
 
 import scala.concurrent.Future
@@ -12,9 +11,10 @@ class ChallengeRepository @Inject()(val ebeanConfig: EbeanConfig, val executionC
 
   def all(): Future[List[Challenge]] = getList {
     query
-      .orderBy("createdAt")
       .select("name,createdAt")
       .fetch("owner", "id,name")
+//      .where().eq("status", Challenge.Status.Active)
+      .orderBy("createdAt")
   }
 
   def view(id: Long): Future[Option[Challenge]] =
@@ -26,12 +26,19 @@ class ChallengeRepository @Inject()(val ebeanConfig: EbeanConfig, val executionC
     }(id)
 
   def update(data: Challenge): Future[Option[Challenge]] = {
-    val toSave: Challenge = new Challenge
-    toSave.id = data.id
-    toSave.name = data.name
-    toSave.refId = data.refId
-    toSave.repoUrl = data.repoUrl
-    toSave.owner = data.owner
     updateModel(data)
   }
+
+
+  def activeChallenges(): Future[List[Challenge]] = getList {
+    query
+      .select("id,repoUrl,builder,buildParameters,iterationGoal")
+      .fetch("versions", "id,gitHash,matchmaker,gameSize,scorer,scoringParameters")
+      .fetch("versions.games", "id,startTime,endTime")
+      .where().eq("status", Challenge.Status.Active)
+      .orderBy("versions.createdAt")
+
+
+  }
+
 }

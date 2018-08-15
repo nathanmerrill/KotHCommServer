@@ -1,0 +1,16 @@
+@(challengeForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import helper._
+
+@main(title = "Add a Challenge") {
+
+    @form(routes.ChallengeController.save()) {
+        @challenge.fields(challengeForm)
+
+        <div class="actions">
+            <input type="submit" value="Create this challenge" class="primary"> or
+            <a href="@routes.ChallengeController.index()" class="btn">Cancel</a>
+        </div>
+
+    }
+}

@@ -25,11 +25,11 @@ public class User extends BaseModel {
 
     public enum UserRole {
         @EnumValue("Standard")
-        STANDARD,
+        STANDARD, //Can login, create challenges, view submissions
         @EnumValue("Creator")
-        CREATOR,
+        CREATOR, //Can submit challenges for execution
         @EnumValue("Admin")
-        ADMIN
+        ADMIN //Can manage roles
     }
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.MERGE, targetEntity = Challenge.class)

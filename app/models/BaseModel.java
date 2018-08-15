@@ -6,7 +6,7 @@ import io.ebean.annotation.CreatedTimestamp;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @MappedSuperclass
 public class BaseModel extends Model {
@@ -15,5 +15,5 @@ public class BaseModel extends Model {
 
     @Column(nullable = false)
     @CreatedTimestamp
-    public LocalDateTime createdAt;
+    public Timestamp createdAt;
 }

@@ -1,13 +1,21 @@
 @(challenges: scala.List[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
+@import org.ocpsoft.prettytime.PrettyTime;
 @main(title = "Challenges:"){
-    <a href="@routes.ChallengeController.create()">New Challenge</a>
+
+    @if(request.session.get("name").isDefined) {
+        <div class="title-action">
+            <a class="button" href="@routes.ChallengeController.create()">New Challenge</a>
+        </div>
+    }
     <ul class="challenges list">
         @for(challenge <- challenges) {
             <li>
                 <a href="@routes.ChallengeController.view(challenge.id)"><h3>@challenge.name</h3></a>
-                <span class="created-at date">@challenge.createdAt.toString)</span>
-                <a href="@routes.ChallengeController.view(challenge.owner.id)">@challenge.owner.name</a>
+                <a href="@routes.UserController.view(challenge.owner.id)">@challenge.owner.name</a>
+                <span class="created-at date">@{
+                    new PrettyTime().format(challenge.createdAt)
+                }</span>
             </li>
         }
     </ul>

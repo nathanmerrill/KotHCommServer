@@ -1,0 +1,64 @@
+@(user: models.User, userForm: play.api.data.Form[User])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import org.ocpsoft.prettytime.PrettyTime;
+
+@import helper._
+@import helpers.Enum
+
+@main(title = user.name) {
+    @if(userForm.hasErrors) {
+        <div class="alert alert-error">
+        @for(error <- userForm.errors) {
+            @for(message <- error.messages) {
+                @message
+            }
+        }
+        </div>
+    }
+    @if(request.session.get("role").getOrElse("") == "ADMIN") {
+        <div class="title-action">
+        @form(routes.UserController.update(user.id)) {
+
+            @CSRF.formField
+            @select(userForm("role"),
+                options = Enum.enumValues(classOf[User.UserRole]),
+                '_label -> "")
+            <input type="submit" value="Save role" class="btn primary">
+            }
+        </div>
+    }
+    @if(!user.challenges.isEmpty) {
+        <h2>Challenges</h2>
+        <ul class="challenges list">
+        @for(challenge <- user.challenges) {
+            <li>
+                <a href="@routes.ChallengeController.view(challenge.id)"><h3>@challenge.name</h3></a>
+                <div>
+                    <span class="created-at date">@{
+                        new PrettyTime().format(challenge.createdAt)
+                    }</span>
+                </div>
+            </li>
+        }
+        </ul>
+    }
+
+    @if(!user.entries.isEmpty) {
+        <h2>Entries</h2>
+        <ul class="entries list">
+        @for(entry <- user.entries) {
+            <li>
+                <h3>@entry.currentName</h3>
+                <div>
+                    <span class="challenge-name">
+                        <a href="@routes.ChallengeController.view(entry.challenge.id)">@entry.challenge.name</a>
+                    </span>
+                    <span class="created-at date">@{
+                        new PrettyTime().format(entry.createdAt)
+                    }</span>
+                </div>
+            </li>
+        }
+        </ul>
+    }
+}

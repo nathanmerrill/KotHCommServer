@@ -7,7 +7,10 @@ create table challenge (
   owner_id                  bigint not null,
   name                      varchar(255) not null,
   repo_url                  varchar(255) not null,
-  ref_id                    varchar(255),
+  ref_id                    varchar(255) not null,
+  status                    varchar(255) not null,
+  language                  varchar(255) not null,
+  build_parameters          text,
   created_at                timestamp not null,
   constraint pk_challenge primary key (id))
 ;
@@ -75,6 +78,7 @@ create table tournament (
   matchmaker                varchar(255) not null,
   scorer                    varchar(255) not null,
   scoring_parameters        text not null,
+  iteration_goal            bigint not null,
   created_at                timestamp not null,
   constraint pk_tournament primary key (id))
 ;

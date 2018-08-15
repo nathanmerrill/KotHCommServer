@@ -13,10 +13,9 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
   def view(id: Long): Future[Option[User]] =
     getOne {
       query
-        .select("id,username,name")
+        .select("id,username,name,role")
         .fetch("entries", "id,currentName")
-        .fetch("entries.User", "name")
-        .fetch("Users", "id,name")
+        .fetch("challenges", "id,name,createdAt")
     }(id)
 
   def byUsername(username: String): Future[Option[User]] =
@@ -32,13 +31,21 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
           val u = new User
           u.username = username
           u.role = User.UserRole.STANDARD
+          if (query.select("id").findCount() == 0){
+            u.role = User.UserRole.ADMIN
+          }
           u
       }
       user.name = name
-      if (user.role == User.UserRole.STANDARD) {
-        user.authentication = authentication
-      }
+      user.authentication = authentication
       ebeanServer.save(user)
+      user
+    }
+  }
+
+  def update(user: User): Future[User] = {
+    execute {
+      ebeanServer.update(user)
       user
     }
   }

@@ -1,0 +1,46 @@
+@(challenge: Challenge)(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import org.ocpsoft.prettytime.PrettyTime;
+
+@main(title = challenge.name) {
+    <div class="title-action">
+        @if(challenge.owner.id.toString == request.session.get("userid").getOrElse("") || request.session.get("role").getOrElse("") == "ADMIN") {
+            <a class="button" href="@routes.ChallengeController.edit(challenge.id)">Edit</a>
+        }
+        <div class="status @challenge.status.toString.toLowerCase">@challenge.status</div>
+    </div>
+
+    <h2>Entries</h2>
+    @if(challenge.entries.isEmpty) {
+        <span>No entries added yet!</span>
+    } else {
+        <ul class="challenges list">
+        @for(entry <- challenge.entries) {
+            <li>
+                <h3>@entry.currentName</h3>
+                <div>
+                    <span class="user-name">
+                        <a href="@routes.UserController.view(entry.owner.id)">@entry.owner.name</a>
+                    </span>
+                    <span class="created-at date">@{
+                        new PrettyTime().format(entry.createdAt)
+                    }</span>
+                </div>
+            </li>
+        }
+        </ul>
+    }
+
+    @if(!challenge.versions.isEmpty) {
+        <h2>Tournaments</h2>
+
+        @for((tournament, index) <- challenge.versions.zipWithIndex) {
+            <a href="@routes.UserController.view(tournament.id)">
+                @index match {
+                    case 0 => {Latest}
+                    case default => {@(index + 1)}
+                }
+            </a>
+        }
+    }
+}

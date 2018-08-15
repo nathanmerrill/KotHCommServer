@@ -1,6 +1,102 @@
 .container {
-    padding-top: 10em;
+    padding-top: 5em;
+    margin-top: 5em;
 }
-.user-management {
+
+.top-bar {
     padding: 1em;
+    background-color: #eee;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 1;
+}
+
+.user-management {
+    text-align: right;
+}
+
+#login img {
+    height: 20px;
+    vertical-align: middle;
+}
+
+.challenges h3 {
+    margin-bottom: 0;
+}
+
+ul > li {
+    list-style: none;
+}
+
+.challenges .created-at:not(:first-child):before {
+    content: ' ';
+    height: 4px;
+    width: 4px;
+    background-color: black;
+    display: inline-block;
+    border-radius: 50%;
+    margin: 3px;
+}
+
+header {
+    margin-left: -15px;
+}
+
+section h2 {
+    border-bottom: 1px solid;
+}
+
+.title-action {
+    margin-top: -5em;
+    float: right;
+}
+
+.title-action * {
+    display: inline-block;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.home {
+    font-size: larger;
+}
+
+.dark-link {
+    color: black;
+}
+
+.dark-link:hover {
+    color: black;
+}
+
+.status {
+    color: white;
+    font-size: 1.4em;
+    padding: 0 10px;
+    height: 38px;
+    border-radius: 4px;
+}
+
+.status.inactive {
+    background-color: #9d261d;
+}
+
+.status.active {
+    background-color: #3d773d;
+}
+
+.status.pending {
+    background-color: #e4c652;
+}
+
+.status.finished {
+    background-color: #2C3D9B;
 }

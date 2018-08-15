@@ -1,0 +1,26 @@
+@(id: Long, challengeForm: play.api.data.Form[Challenge])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import helper._
+@import helpers.Enum
+
+@main(title="Edit "+challengeForm.data.get("name").get) {
+
+    @form(routes.ChallengeController.edit(id)) {
+        @challenge.fields(challengeForm)
+
+        @if(request.session.get("role").getOrElse("") == "ADMIN") {
+            @select(challengeForm("status"),
+                options = Enum.enumValues(classOf[Challenge.Status]),
+                '_label -> "* Status",
+                '_help -> "The status of the challenge")
+        }
+
+
+        <div class="actions">
+            <input type="submit" value="Update challenge" class="primary"> or
+            <a href="@routes.ChallengeController.view(id)" class="btn">Cancel</a>
+        </div>
+
+    }
+
+}
