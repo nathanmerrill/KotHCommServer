@@ -1,5 +1,6 @@
 package controllers
 
+import comm.{Downloader, UnableToDownloadException}
 import javax.inject._
 import models.{Challenge, User}
 import play.api.Configuration
@@ -13,8 +14,10 @@ import scala.concurrent.Future
 import helpers.Enum
 import play.api.libs.json.Json
 
+import scala.collection.mutable.ListBuffer
+
 @Singleton
-class ChallengeController @Inject()(val cc: ControllerComponents, challenges: ChallengeRepository, users: UserRepository, controllers: Controllers, implicit val config: Configuration)
+class ChallengeController @Inject()(val cc: ControllerComponents, challenges: ChallengeRepository, users: UserRepository, controllers: Controllers, downloader: Downloader, implicit val config: Configuration)
   extends AbstractController(cc) with play.api.i18n.I18nSupport {
 
   def index: Action[AnyContent] = Action.async { implicit request =>
@@ -66,7 +69,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
         },
         challengeInfo => {
           challengeInfo.id = id
-          if (user.role != User.UserRole.ADMIN){
+          if (user.role != User.UserRole.ADMIN) {
             challengeInfo.status = challenge.status
           }
           challenges.update(challengeInfo)
@@ -84,7 +87,58 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
   }
 
   def checkChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    return Ok(Json.toJson(Moments.all());
+    challenges.view(id).flatMap {
+      case None => Future.successful(Results.NotFound)
+      case Some(challenge) => {
+        val errors = ListBuffer[String]()
+        var repoValid = true
+        var challengeValid = true
+        val futures = ListBuffer[Future[Any]]()
+        if (challenge.repoUrl.isEmpty) {
+          errors += "Unable to check controller: Please add a git URL"
+          repoValid = false
+        }
+        if (challenge.buildParameters.isEmpty && this.requiresBuildParameters(challenge.language)) {
+          errors += (challenge.language.toString + " requires Process name")
+          repoValid = false
+        }
+        if (challenge.refId.isEmpty) {
+          errors += "Unable to check Stack Exchange post.  Please add the ID of the challenge post"
+          Future.successful(Results.NotFound)
+          challengeValid = false
+        } else {
+          futures += downloader.downloadQuestions(challenge.refId).recover {
+            case e: UnableToDownloadException =>
+              errors + "Error when attempting to read challenge: " + e.getMessage
+              challengeValid = false
+              Seq()
+          }
+        }
+        if (repoValid){
+
+        }
+        var response: Future[Any] = Future.successful("")
+        futures.foreach { future =>
+          response = response.flatMap(_ => future)
+        }
+        response.map(_ =>
+          Ok(Json.stringify(Json.obj(
+            "errors" -> Json.arr(errors),
+            "challengeValid" -> challengeValid.toString,
+            "repoValid" -> repoValid.toString
+          ))))
+      }
+    }
+  }
+
+  // Check stack exchange ID
+  // Check if git repo exists
+  // Attempt compiling controller
+  // Attempt building a submission
+  // Attempt running a game
+
+  def requiresBuildParameters(language: Challenge.Language): Boolean = {
+    Set(Challenge.Language.JAVA, Challenge.Language.PYTHON_2, Challenge.Language.PYTHON_3).contains(language)
   }
 
   val challengeForm: Form[Challenge] = Form[Challenge](

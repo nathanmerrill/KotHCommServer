@@ -22,7 +22,7 @@ class ChallengeRepository @Inject()(val ebeanConfig: EbeanConfig, val executionC
       query
         .fetch("entries", "id,currentName")
         .fetch("owner", "id,name")
-        .fetch("versions", "id,createdAt,versionId")
+        .fetch("versions", "id,createdAt,version")
     }(id)
 
   def update(data: Challenge): Future[Option[Challenge]] = {

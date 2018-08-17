@@ -1,5 +1,19 @@
 package comm
 
+import models.Challenge
+
+object Adapters {
+  def create(language: Challenge.Language, buildParameters: String): ConnectionAdapter ={
+    language match {
+      case Challenge.Language.GRADLE => new GradleConnectionAdapter()
+      case Challenge.Language.JAVA => new JavaConnectionAdapter(buildParameters)
+      case Challenge.Language.NPM => new NpmConnectionAdapter()
+      case Challenge.Language.PYTHON_2 => new Py2ConnectionAdapter(buildParameters)
+      case Challenge.Language.PYTHON_3 => new Py3ConnectionAdapter(buildParameters)
+    }
+  }
+}
+
 trait ConnectionAdapter {
   def build(): List[Seq[String]]
   def runCommand(command: Seq[String]): Seq[String]
@@ -25,8 +39,7 @@ class GradleConnectionAdapter() extends ConnectionAdapter {
   }
 
   def runCommand(command: Seq[String]): Seq[String] = {
-    val args:Iterable[String] = command.map(f => "'"+f+"'")
-    Seq("gradle","run", "-PappArgs=[",command.mkString("'",",","'")+"]")
+    Seq("gradle","run", "-PappArgs=[",command.mkString("'","','","'")+"]")
   }
 
 }

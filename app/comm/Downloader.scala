@@ -14,7 +14,7 @@ class Downloader @Inject()(se: SeApi) {
   def downloadQuestions(questionId: String)(implicit executor: ExecutionContext) : Future[Seq[Entry]] = {
     se.request("questions/" + questionId + "answers", Map(("filter", "FcbKgRqyv4bqdqoj9fAB6fZ05P")))
       .map {
-        case Left(error: String) => throw new Exception(error)
+        case Left(error: String) => throw new UnableToDownloadException(error)
         case Right(json: JsValue) =>
           (json \\ "body")
             .map(s => parseHtml(s.as[String]))
@@ -70,3 +70,5 @@ class Downloader @Inject()(se: SeApi) {
 }
 
 case class Entry(name: String, code: String)
+
+class UnableToDownloadException(message: String) extends Exception(message)
