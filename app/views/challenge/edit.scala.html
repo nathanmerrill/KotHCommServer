@@ -5,7 +5,7 @@
 
 @main(title="Edit "+challengeForm.data.get("name").get) {
 
-    @form(routes.ChallengeController.edit(id)) {
+    @form(routes.ChallengeController.update(id)) {
         @challenge.fields(challengeForm)
 
         @if(request.session.get("role").getOrElse("") == "ADMIN") {

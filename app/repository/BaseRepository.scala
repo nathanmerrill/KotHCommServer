@@ -41,7 +41,7 @@ abstract class BaseRepository[T <: BaseModel] {
     try {
       val saved = query.setId(data.id).findOne()
       if (saved != null) {
-        saved.update()
+        data.update()
         transaction.commit()
       }
       Option(saved)
