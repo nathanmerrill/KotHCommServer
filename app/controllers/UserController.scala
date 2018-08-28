@@ -7,18 +7,16 @@ import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.mvc._
-import repository.UserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class UserController @Inject()(val cc: ControllerComponents, controllers: Controllers, users: UserRepository, implicit val config: Configuration)
-  extends AbstractController(cc) with play.api.i18n.I18nSupport {
+class UserController @Inject()(cc: ControllerComponents, implicit val config: Configuration) extends KothController(cc){
 
 
   def me(): Action[AnyContent] = Action.async { implicit request =>
-    controllers.userCheck(User.UserRole.STANDARD, user => {
+    userCheck(User.UserRole.STANDARD, user => {
       Future.successful(Redirect(routes.UserController.view(user.id)))
     })
   }
@@ -32,9 +30,9 @@ class UserController @Inject()(val cc: ControllerComponents, controllers: Contro
   }
 
   def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    controllers.userCheck(User.UserRole.ADMIN, _ => {
+    userCheck(User.UserRole.ADMIN, _ => {
       users.getOne(id).flatMap {
-        case None => controllers.redirectHome
+        case None => redirectHome
         case Some(user) =>
           userForm.bindFromRequest.fold(
             formWithErrors => {

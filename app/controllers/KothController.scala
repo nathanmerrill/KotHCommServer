@@ -3,13 +3,16 @@ package controllers
 import io.ebean.Ebean
 import javax.inject.Inject
 import models.{Challenge, User}
-import play.api.mvc.{RequestHeader, Result, Results}
+import play.api.mvc._
 import repository.{ChallengeRepository, UserRepository}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class Controllers @Inject()(challenges: ChallengeRepository, users: UserRepository) {
+class KothController(cc: ControllerComponents) extends AbstractController(cc) with play.api.i18n.I18nSupport  {
+
+  @Inject() var challenges: ChallengeRepository = _
+  @Inject() var users: UserRepository = _
 
   var redirectHome: Future[Result] =
     Future.successful(Results.Redirect(routes.ChallengeController.index()))

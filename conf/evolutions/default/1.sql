@@ -5,6 +5,7 @@
 create table challenge (
   id                        bigint not null auto_increment,
   owner_id                  bigint not null,
+  active_tournament_id      bigint null,
   name                      varchar(255) not null,
   repo_url                  varchar(255) not null,
   ref_id                    varchar(255) not null,
@@ -73,11 +74,9 @@ create index on score (score);
 create table tournament (
   id                        bigint not null auto_increment,
   challenge_id              bigint not null,
+  primary_group_id          bigint null,
   version                   varchar(255) not null unique,
   git_hash                  varchar(255) not null,
-  matchmaker                varchar(255) not null,
-  scorer                    varchar(255) not null,
-  scoring_parameters        text not null,
   iteration_goal            bigint not null,
   created_at                timestamp not null,
   constraint pk_tournament primary key (id))
@@ -87,11 +86,27 @@ create index on tournament (version);
 create index on tournament (created_at);
 
 
+create table `group` (
+  id                        bigint not null auto_increment,
+  tournament_id             bigint not null,
+  size                      bigint not null,
+  matchmaker                varchar(255) not null,
+  matchmaker_parameters     text not null,
+  scorer                    varchar(255) not null,
+  scoring_parameters        text not null,
+  created_at                timestamp not null,
+  constraint pk_tournament primary key (id))
+;
+
+create index on `group` (created_at);
+
+
 create table tournament_entry (
   id                        bigint not null auto_increment,
-  version_id          bigint not null,
+  version_id                bigint not null,
   tournament_id             bigint not null,
-  rank                      bigint not null,
+  group_id                  bigint not null,
+  rank                      bigint,
   created_at                timestamp not null,
   constraint pk_tournament_entry primary key (id))
 ;
@@ -115,6 +130,7 @@ create index on `user` (created_at);
 
 
 alter table challenge add foreign key (owner_id) references `user` (id) on delete set null on update cascade;
+alter table challenge add foreign key (active_tournament_id) references tournament (id) on delete set null on update cascade;
 
 alter table entry add foreign key (owner_id) references `user` (id) on delete set null on update cascade;
 alter table entry add foreign key (challenge_id) references challenge (id) on delete cascade on update cascade;
@@ -127,9 +143,13 @@ alter table score add foreign key (game_id) references game (id) on delete casca
 alter table score add foreign key (tournament_entry_id) references tournament_entry (id) on delete cascade on update cascade;
 
 alter table tournament add foreign key (challenge_id) references challenge (id) on delete cascade on update cascade;
+alter table tournament add foreign key (primary_group_id) references `group` (id) on delete set null on update cascade;
+
+alter table `group` add foreign key (tournament_id) references tournament (id) on delete cascade on update cascade;
 
 alter table tournament_entry add foreign key (version_id) references entry_version (id) on delete cascade on update cascade;
 alter table tournament_entry add foreign key (tournament_id) references tournament (id) on delete cascade on update cascade;
+alter table tournament_entry add foreign key (group_id) references `group` (id) on delete cascade on update cascade;
 
 insert into `user` (username, name, role, authentication, created_at)
 VALUES('20198', 'Nathan Merrill', 'Admin', '', CURRENT_TIMESTAMP())

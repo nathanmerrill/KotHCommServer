@@ -7,13 +7,12 @@ import javax.inject._
 import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc._
-import repository.UserRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 
 @Singleton
-class HomeController @Inject()(val cc: ControllerComponents, users: UserRepository, se: SeApi) extends AbstractController(cc) with play.api.i18n.I18nSupport {
+class HomeController @Inject()(val cc: ControllerComponents, se: SeApi) extends KothController(cc) {
 
 
   def auth(): Action[AnyContent] = Action.async { implicit request =>

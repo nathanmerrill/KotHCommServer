@@ -15,6 +15,9 @@ public class Challenge extends BaseModel {
     @ManyToOne(cascade = CascadeType.ALL, optional = false)
     public User owner;
 
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    public Tournament activeTournament;
+
     @Column(nullable = false)
     public String name;
 

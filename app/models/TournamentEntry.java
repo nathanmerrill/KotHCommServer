@@ -17,6 +17,9 @@ public class TournamentEntry extends BaseModel {
     @ManyToOne(cascade = CascadeType.ALL)
     public Tournament tournament;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Group group;
+
     public Long rank;
 
     @OneToMany(mappedBy = "tournamentEntry", cascade = CascadeType.ALL, targetEntity = Score.class)

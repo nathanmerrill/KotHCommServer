@@ -1,0 +1,16 @@
+@(challengeId: Int, tournamentForm: play.api.data.Form[Tournament])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import helper._
+
+@main(title = "New Tournament") {
+
+    @form(routes.TournamentController.save()) {
+        @tournament.fields(tournamentForm)
+
+        <div class="actions">
+            <input type="submit" value="Create this challenge" class="primary"> or
+            <a href="@routes.ChallengeController.view(challengeId)" class="btn">Cancel</a>
+        </div>
+
+    }
+}

@@ -1,24 +1,21 @@
 package controllers
 
 import comm.{Downloader, UnableToDownloadException}
+import helpers.Enum
 import javax.inject._
 import models.{Challenge, User}
 import play.api.Configuration
-import play.api.data.{Form, _}
-import play.api.mvc._
-import repository.{ChallengeRepository, UserRepository}
+import play.api.data.Form
 import play.api.data.Forms._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import helpers.Enum
 import play.api.libs.json.Json
+import play.api.mvc._
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 @Singleton
-class ChallengeController @Inject()(val cc: ControllerComponents, challenges: ChallengeRepository, users: UserRepository, controllers: Controllers, downloader: Downloader, implicit val config: Configuration)
-  extends AbstractController(cc) with play.api.i18n.I18nSupport {
+class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader, implicit val config: Configuration) extends KothController(cc) {
 
   def index: Action[AnyContent] = Action.async { implicit request =>
     challenges.all().map(list => {
@@ -39,13 +36,13 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
   }
 
   def create(): Action[AnyContent] = Action.async { implicit request =>
-    controllers.userCheck(User.UserRole.CREATOR, _ =>
+    userCheck(User.UserRole.CREATOR, _ =>
       Future.successful(Ok(views.html.challenge.create(challengeForm)))
     )
   }
 
   def save(): Action[AnyContent] = Action.async { implicit request =>
-    controllers.userCheck(User.UserRole.CREATOR, user =>
+    userCheck(User.UserRole.CREATOR, user =>
       challengeForm.bindFromRequest.fold(
         formWithErrors => {
           Future.successful(BadRequest(views.html.challenge.create(formWithErrors)))
@@ -62,7 +59,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
   }
 
   def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    controllers.challengeCheck(id, (user, challenge) =>
+    challengeCheck(id, (user, challenge) =>
       Future.successful(challengeForm.bindFromRequest.fold(
         formWithErrors => {
           BadRequest(views.html.challenge.edit(id, formWithErrors))
@@ -89,7 +86,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
   def checkChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).flatMap {
       case None => Future.successful(Results.NotFound)
-      case Some(challenge) => {
+      case Some(challenge) =>
         val errors = ListBuffer[String]()
         var repoValid = true
         var challengeValid = true
@@ -114,7 +111,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
               Seq()
           }
         }
-        if (repoValid){
+        if (repoValid) {
 
         }
         var response: Future[Any] = Future.successful("")
@@ -127,7 +124,6 @@ class ChallengeController @Inject()(val cc: ControllerComponents, challenges: Ch
             "challengeValid" -> challengeValid.toString,
             "repoValid" -> repoValid.toString
           ))))
-      }
     }
   }
 
