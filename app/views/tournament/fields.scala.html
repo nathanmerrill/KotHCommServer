@@ -15,16 +15,55 @@
 
 <fieldset>
     @CSRF.formField
-    @inputText(challengeForm("name"), '_label -> "* Name", '_help -> "Name of your challenge", 'required -> "true")
-    @inputText(challengeForm("repoUrl"), '_label -> "* Repo URL", '_help -> "Url of the git repo to pull the latest controller", 'required -> "true")
-    @inputText(challengeForm("refId"), '_label -> "Stack exchange ID", '_help -> "StackExchange post ID to pull submissions from")
-    @select(challengeForm("language"),
-        options = Enum.enumValues(classOf[Challenge.Language]),
-        '_label -> "* Language",
-        '_help -> "The language used to run the controller")
+    @inputText(tournamentForm("gitHash"), 'readonly -> "readonly", '_label -> "Git hash", '_help -> "Fetch the latest code", 'required -> "true")
+    @input(tournamentForm("iterationGoal"), 'type -> "number", '_label -> "* Iteration Goal", '_help -> "The number of games to run", 'required -> "true")
+    @groupCount = @{ tournamentForm("groupCount").value.getOrElse("1").toInt }
 
-    @inputText(challengeForm("buildParameters"), '_label -> "* Process name", '_help -> "The full classname (com.sample.proj.MainClass for Java) or filepath (mypath/main.py for Python)")
+    @group = @{ tournamentForm("") }
 
+    @for(index <- 0 to groupCount) {
+        @group = @{ tournamentForm("group")(index.toString) }
+        <div class="group group@index">
+            @if(groupCount > 1) {
+                @inputText(group("name"), 'readonly -> "readonly", '_label -> "Group name", '_help -> "The name used to determine which group the bots go in")
+            }
+            @input(group("size"), 'type -> "number", '_label -> "* Game size", '_help -> "The number of players in each game", 'required -> "true")
+            @select(group("matchmaker"),
+                options = Enum.enumValues(classOf[Group.Matchmaker]),
+                '_label -> "* Matchmaker",
+                '_help -> "How to select which players go in which games")
+            )
+            <span class="match-info random-sample">Randomly shuffles and selects the players in each game</span>
+            <span class="match-info similar-score">Pairs players with similar scores.  Useful to de-clump scores</span>
+            <span class="match-info sobol">Pairs players using <a href="https://en.wikipedia.org/wiki/Sobol_sequence">Sobol sequences</a>
+                , which is similar to round-robin.  Attempts to balance the frequencies of combinations of players</span>
+            <span class="match-info tournament">N-elimination tournament.  Requires game size of 2.</span>
+            <span class="match-info elitist-selection">Games select players from a population of size N.  Players that do well survive and are cloned in the population</span>
+
+                @input(tournamentForm("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
+
+                @select(group("scorer"),
+                    options = Enum.enumValues(classOf[Group.Scorer]),
+                    '_label -> "* Scorer",
+                    '_help -> "How to obtain the overall ranking")
+                )
+            <span class="scorer-info arithmetic-mean">Ranks the players by their average score</span>
+            <span class="scorer-info geometric-mean">Ranks the players by their geometric mean.  De-emphasizess outlier games:  Particularly bad or good games won't have as large of an effect on the final score</span>
+            <span class="scorer-info median">Ranks the player by their median score.  Completely ignores outlier games</span>
+            <span class="scorer-info maximum">Ranks the player by their largest score</span>
+            <span class="scorer-info minimum">Ranks the player by their smallest score</span>
+            <span class="scorer-info true-skill">Uses the True Skill algorithm, where winning against a better player increases your score more</span>
+            <span class="scorer-info minimum">Ranks the player by their smallest score</span>
+            <span class="scorer-info condorcet">Selects the player that is ranked higher more than other players are ranked above the player</span>
+            <span class="scorer-info single-transferable-vote">Scores players by the number of wins.  Consists of a series of rounds, where each round throws out the lowest ranked player, and distributes the wins</span>
+            <span class="scorer-info rank-points">Each ranking within a game is assigned a fixed number of points.  The player with the most points wins</span>
+            <label class="scorer-parameters true-skill">
+
+                <input type="number" name="scorerParameters" />
+            </label>
+        </div>
+
+    }
 
 </fieldset>
 
