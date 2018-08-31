@@ -93,7 +93,7 @@ create table `group` (
   matchmaker                varchar(255) not null,
   matchmaker_parameters     text not null,
   scorer                    varchar(255) not null,
-  scoring_parameters        text not null,
+  scorer_parameters        text not null,
   created_at                timestamp not null,
   constraint pk_tournament primary key (id))
 ;

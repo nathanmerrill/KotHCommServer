@@ -31,7 +31,7 @@ public class Group extends BaseModel {
     public Scorer scorer;
 
     @Column
-    public String scoringParameters;
+    public String scorerParameters;
 
     @Column(nullable = false)
     public boolean rankDescending;
@@ -40,36 +40,36 @@ public class Group extends BaseModel {
     public List<TournamentEntry> entries;
 
     public enum Matchmaker {
-        @EnumValue("Random Sample")  // Randomly selects players.  Balances individual games, but not combinations of players
+        @EnumValue("Random Sample")
          RANDOM_SAMPLE,
-        @EnumValue("Similar Score")  // Pairs according to similar score.  Useful to de-clump similar-scoring players
+        @EnumValue("Similar Score")
         SIMILAR_SCORE,
-        @EnumValue("Sobol")  // Pairs according to Sobol (similar to round robin).  Attempts to balance individual games, and combinations of players.  Does not support groups
+        @EnumValue("Sobol")
         SOBOL,
-        @EnumValue("Tournament")  // N-elimination tournament.  Does not balance individual games, nor combinations of players.  Game size must be 2.  Does not support groups.
+        @EnumValue("Tournament")
         TOURNAMENT,
-        @EnumValue("Elitist Selection")  // Only the best players will survive
+        @EnumValue("Elitist Selection")
         ELITIST_SELETION,
     }
 
     public enum Scorer {
-        @EnumValue("Arithmetic Mean") // Sum score, divide by N.  Emphasizes outlier games: Particularly bad or good games will have a larger effect on the score
+        @EnumValue("Arithmetic Mean")
         ARITHMETIC_MEAN,
-        @EnumValue("Geometric Mean")  // Product of scores all to the power of 1/N.  Demphasizes outlier games:  Particularly bad or good games will have a smaller effect on the score
+        @EnumValue("Geometric Mean")
         GEOMETRIC_MEAN,
-        @EnumValue("Median") // Select the median score from each player.  Completely ignores outlier games
+        @EnumValue("Median")
         MEDIAN,
-        @EnumValue("Maximum") // Select the player's highest score.  You can optionally choose to remove the top N% of games from each players.
+        @EnumValue("Maximum")
         MAXIMUM,
-        @EnumValue("Minimum") // Select the player's lowest score.  You can optionally choose to remove the lowest N% of games from each player
+        @EnumValue("Minimum")
         MINIMUM,
-        @EnumValue("True Skill") // Calculates the ELO for each player, where winning against a better opponent increases your ELO by more
+        @EnumValue("True Skill")
         TRUE_SKILL,
-        @EnumValue("Condorcet") // Uses the rank of a player within a game, instead of their score.  Selects the player that would beat all other players in a head-to-head. Can select a variety of methods as a tiebreaker
+        @EnumValue("Condorcet")
         CONDORCET,
-        @EnumValue("Single Transferable Vote") // Uses the rank of a player within a game, instead of the score.  Consists of a series of rounds, where each round throws out the lowest ranked player, and the games that player has won are given to the next ranked player
+        @EnumValue("Single Transferable Vote")
         SINGLE_TRANSFERRABLE_VOTE,
-        @EnumValue("Rank Points") // Each rank within a game is given a fixed number of points (1st place is 5 points, 2nd place is 3 points, etc), and then scores are summed
+        @EnumValue("Rank Points")
         RANK_POINTS
     }
 

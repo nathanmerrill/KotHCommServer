@@ -40,7 +40,7 @@
             <span class="match-info tournament">N-elimination tournament.  Requires game size of 2.</span>
             <span class="match-info elitist-selection">Games select players from a population of size N.  Players that do well survive and are cloned in the population</span>
 
-                @input(tournamentForm("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
+                @input(group("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
 
                 @select(group("scorer"),
                     options = Enum.enumValues(classOf[Group.Scorer]),
@@ -54,13 +54,22 @@
             <span class="scorer-info minimum">Ranks the player by their smallest score</span>
             <span class="scorer-info true-skill">Uses the True Skill algorithm, where winning against a better player increases your score more</span>
             <span class="scorer-info minimum">Ranks the player by their smallest score</span>
-            <span class="scorer-info condorcet">Selects the player that is ranked higher more than other players are ranked above the player</span>
+            <span class="scorer-info condorcet">Uses the Condorcet voting criterion to select a player</span>
             <span class="scorer-info single-transferable-vote">Scores players by the number of wins.  Consists of a series of rounds, where each round throws out the lowest ranked player, and distributes the wins</span>
             <span class="scorer-info rank-points">Each ranking within a game is assigned a fixed number of points.  The player with the most points wins</span>
-            <label class="scorer-parameters true-skill">
-
-                <input type="number" name="scorerParameters" />
+            <label class="scorer-parameters condorcet">
+                Tiebreaker:
+                <select class="condorcet tiebreaker">
+                    <option value="plain">Plain Condorcet</option>
+                    <option value="schulze">Schulze</option>
+                    <option value="mam">Maximized Affirmed Majorities</option>
+                </select>
             </label>
+            <label class="scorer-parameters rank-points">
+                Please enter a list of comma-delimited rank points:
+                <input type="text" />
+            </label>
+            @checkbox(group("rankDescending"), '_label -> "Rank descending (Highest score first)")
         </div>
 
     }
