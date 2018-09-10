@@ -1,0 +1,18 @@
+@(tournamentModel: Tournament, tournamentForm: play.api.data.Form[Tournament])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+
+@import helper._
+@import helpers.Enum
+
+@main(title="Edit "+tournamentModel.challenge.name + " #"+tournamentModel.configuration) {
+
+    @form(routes.TournamentController.update(tournamentModel.id)) {
+        @tournament.fields(tournamentForm)
+
+        <div class="actions">
+            <input type="submit" value="Update tournament" class="primary"> or
+            <a href="@routes.TournamentController.view(tournamentModel.id)" class="btn">Cancel</a>
+        </div>
+
+    }
+
+}

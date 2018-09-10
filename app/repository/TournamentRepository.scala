@@ -7,6 +7,8 @@ import play.db.ebean.EbeanConfig
 import scala.concurrent.Future
 
 class TournamentRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContext: DatabaseExecutionContext) extends BaseRepository[Tournament] {
+
+
   val modelClass: Class[Tournament] = classOf[Tournament]
 
   def view(id: Long): Future[Option[Tournament]] =
@@ -18,10 +20,20 @@ class TournamentRepository @Inject()(val ebeanConfig: EbeanConfig, val execution
         .fetch("games", "id,startTime,endTime")
     }(id)
 
-  def all(): Future[List[Tournament]] = getList {
+  def all(challengeId: Long): Future[List[Tournament]] = getList {
     query
+      .where().eq("challengeId", challengeId)
       .orderBy("createdAt")
       .select("name,createdAt")
       .fetch("owner", "id,name")
+  }
+
+  def count(challengeId: Long): Future[Int] =
+    execute {
+      query.where().eq("challengeId", challengeId).findCount()
+    }
+
+  def update(data: Tournament): Future[Option[Tournament]] = {
+    updateModel(data)
   }
 }

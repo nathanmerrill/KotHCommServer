@@ -23,11 +23,6 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
     })
   }
 
-  /**
-    * Display the 'edit form' of an existing Challenge
-    *
-    * @param id Id of the computer to edit
-    */
   def edit(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).map {
       case None => Results.NotFound

@@ -13,6 +13,13 @@ GET     /challenges/:id              controllers.ChallengeController.view(id:Lon
 GET     /challenges/:id/edit         controllers.ChallengeController.edit(id:Long)
 POST    /challenges/:id              controllers.ChallengeController.update(id:Long)
 
+GET     /challenges/:id/new           controllers.TournamentController.create(id:Long)
+POST    /tournaments                  controllers.TournamentController.save(id: Long)
+
+GET     /tournaments/:id              controllers.TournamentController.view(id:Long)
+GET     /tournaments/:id/edit         controllers.TournamentController.edit(id:Long)
+POST    /tournaments/:id              controllers.TournamentController.update(id:Long)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file                controllers.Assets.versioned(path="/public", file: Asset)
 
@@ -24,3 +31,4 @@ POST    /users/:id                   controllers.UserController.update(id:Long)
 
 GET      /oauth/auth                  controllers.HomeController.auth()
 GET      /oauth/deauth                controllers.HomeController.deauth()
+

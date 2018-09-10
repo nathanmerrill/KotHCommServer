@@ -15,21 +15,16 @@
 
 <fieldset>
     @CSRF.formField
-    @inputText(tournamentForm("gitHash"), 'readonly -> "readonly", '_label -> "Git hash", '_help -> "Fetch the latest code", 'required -> "true")
-    @input(tournamentForm("iterationGoal"), 'type -> "number", '_label -> "* Iteration Goal", '_help -> "The number of games to run", 'required -> "true")
-    @groupCount = @{ tournamentForm("groupCount").value.getOrElse("1").toInt }
+    @inputText(tournamentForm("iterationGoal"), 'type -> "number", '_label -> "* Iteration Goal", '_help -> "The number of games to run", 'required -> "true")
 
-    @group = @{ tournamentForm("") }
+    @helper.repeatWithIndex(tournamentForm("group"), min = 1) { (group, index) =>
 
-    @for(index <- 0 to groupCount) {
-        @group = @{ tournamentForm("group")(index.toString) }
         <div class="group group@index">
-            @if(groupCount > 1) {
-                @inputText(group("name"), 'readonly -> "readonly", '_label -> "Group name", '_help -> "The name used to determine which group the bots go in")
-            }
-            @input(group("size"), 'type -> "number", '_label -> "* Game size", '_help -> "The number of players in each game", 'required -> "true")
+            @inputText(group("name"), 'class -> "name", '_label -> "Group name", '_help -> "The name used to determine which group the bots go in")
+            @inputText(group("size"), 'type -> "number", '_label -> "* Game size", '_help -> "The number of players in each game", 'required -> "true")
             @select(group("matchmaker"),
                 options = Enum.enumValues(classOf[Group.Matchmaker]),
+                'class -> "matchmaker",
                 '_label -> "* Matchmaker",
                 '_help -> "How to select which players go in which games")
             )
@@ -40,10 +35,11 @@
             <span class="match-info tournament">N-elimination tournament.  Requires game size of 2.</span>
             <span class="match-info elitist-selection">Games select players from a population of size N.  Players that do well survive and are cloned in the population</span>
 
-                @input(group("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
+                @inputText(group("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
 
                 @select(group("scorer"),
                     options = Enum.enumValues(classOf[Group.Scorer]),
+                    'class -> "scorer",
                     '_label -> "* Scorer",
                     '_help -> "How to obtain the overall ranking")
                 )

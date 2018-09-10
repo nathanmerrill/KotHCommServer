@@ -1,10 +1,10 @@
-@(challengeId: Int, tournamentForm: play.api.data.Form[Tournament])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+@(challengeId: Long, tournamentForm: play.api.data.Form[Tournament])(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
 @import helper._
 
 @main(title = "New Tournament") {
 
-    @form(routes.TournamentController.save()) {
+    @form(routes.TournamentController.save(challengeId)) {
         @tournament.fields(tournamentForm)
 
         <div class="actions">

@@ -64,7 +64,7 @@ public class Group extends BaseModel {
         @EnumValue("Minimum")
         MINIMUM,
         @EnumValue("True Skill")
-        TRUE_SKILL,
+        TRUE_SKILL, //http://www.moserware.com/2010/03/computing-your-skill.html
         @EnumValue("Condorcet")
         CONDORCET,
         @EnumValue("Single Transferable Vote")

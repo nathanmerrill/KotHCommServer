@@ -28,10 +28,10 @@ public class Challenge extends BaseModel {
     public Language language;
 
     public enum Language {
-        @EnumValue("Java")
-        JAVA,
         @EnumValue("Gradle")
         GRADLE,
+        @EnumValue("Java")
+        JAVA,
         @EnumValue("Npm")
         NPM,
         @EnumValue("Python 2")

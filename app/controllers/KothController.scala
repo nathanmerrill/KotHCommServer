@@ -2,9 +2,9 @@ package controllers
 
 import io.ebean.Ebean
 import javax.inject.Inject
-import models.{Challenge, User}
+import models.{Challenge, Tournament, User}
 import play.api.mvc._
-import repository.{ChallengeRepository, UserRepository}
+import repository.{ChallengeRepository, TournamentRepository, UserRepository}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,6 +12,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class KothController(cc: ControllerComponents) extends AbstractController(cc) with play.api.i18n.I18nSupport  {
 
   @Inject() var challenges: ChallengeRepository = _
+  @Inject() var tournaments: TournamentRepository = _
   @Inject() var users: UserRepository = _
 
   var redirectHome: Future[Result] =
@@ -48,6 +49,24 @@ class KothController(cc: ControllerComponents) extends AbstractController(cc) wi
             redirectHome
           } else {
             action.apply(user, challenge)
+          }
+        }
+      })
+    })
+  }
+
+
+  def tournamentCheck(tournamentId: Long, action: (User, Tournament) => Future[Result])(implicit request: RequestHeader): Future[Result] = {
+    userCheck(User.UserRole.CREATOR, user => {
+      tournaments.getOne(tournamentId).flatMap(tournamentOpt => {
+        if (tournamentOpt.isEmpty){
+          redirectHome
+        } else {
+          val tournament = tournamentOpt.get
+          if (tournament.challenge.owner.id != user.id && user.role != User.UserRole.ADMIN) {
+            redirectHome
+          } else {
+            action.apply(user, tournament)
           }
         }
       })

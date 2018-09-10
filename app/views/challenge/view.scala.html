@@ -5,6 +5,7 @@
 @main(title = challenge.name) {
     <div class="title-action">
         @if(challenge.owner.id.toString == request.session.get("userid").getOrElse("") || request.session.get("role").getOrElse("") == "ADMIN") {
+            <a class="button" href="@routes.TournamentController.create(challenge.id)">New run</a>
             <a class="button" href="@routes.ChallengeController.edit(challenge.id)">Edit</a>
         }
         <div class="status @challenge.status.toString.toLowerCase">@challenge.status</div>

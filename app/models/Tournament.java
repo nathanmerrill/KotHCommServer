@@ -30,13 +30,16 @@ public class Tournament extends BaseModel {
     @Column
     public Group primaryGroup;
 
+    @Column
+    public Integer configuration;
+
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, targetEntity = TournamentEntry.class)
     public List<TournamentEntry> entries;
 
     @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, targetEntity = Game.class)
     public List<Game> games;
 
-    @OneToMany(mappedBy = "groups", cascade = CascadeType.ALL, targetEntity = Game.class)
+    @OneToMany(mappedBy = "tournament", cascade = CascadeType.ALL, targetEntity = Group.class)
     public List<Group> groups;
 
 }

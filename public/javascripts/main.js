@@ -51,6 +51,26 @@
         select.addEventListener('change', toggler)
     };
 
+    const displayGroupInfo = () => {
+        const groups = document.getElementsByClassName("group");
+        for (const group in groups) {
+            const name = group.querySelector(".name");
+            const matchmaker = group.querySelector(".matchmaker");
+
+            showName(name, groups);
+
+            displayMatchmakerInfo(matchmaker);
+        }
+    };
+
+    const showName = (name, groups) => {
+        name.style.display = (groups.length > 1) ? "block" : "none";
+    };
+
+    const displayMatchmakerInfo = (matchmaker) => {
+
+    };
+
     const ready = () => {
         onClick('login', auth.bind(false));
         onClick('logout', deauth);

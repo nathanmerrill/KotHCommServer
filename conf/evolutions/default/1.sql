@@ -77,6 +77,7 @@ create table tournament (
   primary_group_id          bigint null,
   version                   varchar(255) not null unique,
   git_hash                  varchar(255) not null,
+  configuration             bigint not null,
   iteration_goal            bigint not null,
   created_at                timestamp not null,
   constraint pk_tournament primary key (id))
@@ -95,7 +96,7 @@ create table `group` (
   scorer                    varchar(255) not null,
   scorer_parameters        text not null,
   created_at                timestamp not null,
-  constraint pk_tournament primary key (id))
+  constraint pk_group primary key (id))
 ;
 
 create index on `group` (created_at);
@@ -161,6 +162,7 @@ drop table if exists tournament_entry;
 drop table if exists entry_version;
 drop table if exists entry;
 drop table if exists game;
+drop table if exists `group`;
 drop table if exists tournament;
 drop table if exists challenge;
 drop table if exists `user`;
