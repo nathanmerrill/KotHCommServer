@@ -100,3 +100,9 @@ a:hover {
 .status.finished {
     background-color: #2C3D9B;
 }
+
+.scorer-info, .match-info {
+    margin-left: 40px;
+    margin-top: -2.5rem;
+    margin-bottom: 2.5rem;
+}

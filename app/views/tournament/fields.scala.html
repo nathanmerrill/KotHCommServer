@@ -20,52 +20,48 @@
     @helper.repeatWithIndex(tournamentForm("group"), min = 1) { (group, index) =>
 
         <div class="group group@index">
-            @inputText(group("name"), 'class -> "name", '_label -> "Group name", '_help -> "The name used to determine which group the bots go in")
+            <div class="group-name">
+                @inputText(group("name"), '_label -> "* Group name", '_help -> "The name used to determine which group the bots go in")
+            </div>
             @inputText(group("size"), 'type -> "number", '_label -> "* Game size", '_help -> "The number of players in each game", 'required -> "true")
             @select(group("matchmaker"),
                 options = Enum.enumValues(classOf[Group.Matchmaker]),
                 'class -> "matchmaker",
                 '_label -> "* Matchmaker",
                 '_help -> "How to select which players go in which games")
-            )
             <span class="match-info random-sample">Randomly shuffles and selects the players in each game</span>
             <span class="match-info similar-score">Pairs players with similar scores.  Useful to de-clump scores</span>
             <span class="match-info sobol">Pairs players using <a href="https://en.wikipedia.org/wiki/Sobol_sequence">Sobol sequences</a>
                 , which is similar to round-robin.  Attempts to balance the frequencies of combinations of players</span>
             <span class="match-info tournament">N-elimination tournament.  Requires game size of 2.</span>
             <span class="match-info elitist-selection">Games select players from a population of size N.  Players that do well survive and are cloned in the population</span>
-
+            <div class="matchmaker-parameters-field tournament elitist-selection">
                 @inputText(group("matchmakerParameters"), 'type -> "number", '_label -> "* N = ")
-
+            </div>
                 @select(group("scorer"),
                     options = Enum.enumValues(classOf[Group.Scorer]),
                     'class -> "scorer",
                     '_label -> "* Scorer",
                     '_help -> "How to obtain the overall ranking")
-                )
             <span class="scorer-info arithmetic-mean">Ranks the players by their average score</span>
-            <span class="scorer-info geometric-mean">Ranks the players by their geometric mean.  De-emphasizess outlier games:  Particularly bad or good games won't have as large of an effect on the final score</span>
+            <span class="scorer-info geometric-mean">Ranks the players by their geometric mean.  De-emphasizes outlier games:  Particularly bad or good games won't have as large of an effect on the final score</span>
             <span class="scorer-info median">Ranks the player by their median score.  Completely ignores outlier games</span>
             <span class="scorer-info maximum">Ranks the player by their largest score</span>
             <span class="scorer-info minimum">Ranks the player by their smallest score</span>
             <span class="scorer-info true-skill">Uses the True Skill algorithm, where winning against a better player increases your score more</span>
-            <span class="scorer-info minimum">Ranks the player by their smallest score</span>
             <span class="scorer-info condorcet">Uses the Condorcet voting criterion to select a player</span>
             <span class="scorer-info single-transferable-vote">Scores players by the number of wins.  Consists of a series of rounds, where each round throws out the lowest ranked player, and distributes the wins</span>
             <span class="scorer-info rank-points">Each ranking within a game is assigned a fixed number of points.  The player with the most points wins</span>
-            <label class="scorer-parameters condorcet">
-                Tiebreaker:
-                <select class="condorcet tiebreaker">
-                    <option value="plain">Plain Condorcet</option>
-                    <option value="schulze">Schulze</option>
-                    <option value="mam">Maximized Affirmed Majorities</option>
-                </select>
-            </label>
-            <label class="scorer-parameters rank-points">
-                Please enter a list of comma-delimited rank points:
-                <input type="text" />
-            </label>
-            @checkbox(group("rankDescending"), '_label -> "Rank descending (Highest score first)")
+            <div class="scorer-parameters condorcet">
+                @select(group("scorer-parameters-condorcet"),
+                    options = Enum.enumValues(classOf[Group.CondorcetTiebreakers]),
+                    '_label -> "* Tiebreaker:",
+                    '_help -> "The tiebreaker used in Condorcet")
+            </div>
+            <div class="scorer-parameters rank-points">
+                @inputText(group("scorer-parameters-rank-points"), '_label -> "* Please enter a list of comma-delimited rank points:")
+            </div>
+            @checkbox(group("rankDescending"), '_label -> "Rank descending:")
         </div>
 
     }

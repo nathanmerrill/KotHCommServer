@@ -73,5 +73,14 @@ public class Group extends BaseModel {
         RANK_POINTS
     }
 
+    public enum CondorcetTiebreakers {
+        @EnumValue("Plain Condorcet")
+        PLAIN_CONDORCET,
+        @EnumValue("Schulze")
+        SCHULZE,
+        @EnumValue("Maximized Affirmed Majorities")
+        MAXIMIZED_AFFIRMED_MAJORITIES
+    }
+
 }
 

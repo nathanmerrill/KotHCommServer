@@ -33,48 +33,88 @@
         }
     };
 
-    const toggleLanguageParams = () => {
+    const showLanguageParams = () => {
         const select =  document.getElementById("language");
-        const buildParameters = document.getElementById("buildParameters_field");
-        if (select == null || buildParameters == null){
+        const buildParameters = document.getElementById("build-parameters-field");
+        showSelectInfo(select, [buildParameters]);
+    };
+
+    const showSelectInfo = (select, infos) => {
+        if (select == null || infos == null){
             return;
         }
         const toggler = () => {
-            const selected = select.options[select.selectedIndex].text;
-            if (selected === "Java" || selected === "Python 2" || selected === "Python 3") {
-                buildParameters.style.display = "block";
-            } else {
-                buildParameters.style.display = "none";
+            const selected = select.value.replace(/ /g, "-").toLowerCase();
+            for (const info of infos){
+                show(info, info.classList.contains(selected));
             }
         };
         toggler();
         select.addEventListener('change', toggler)
     };
 
-    const displayGroupInfo = () => {
+    const showGroupInfo = () => {
         const groups = document.getElementsByClassName("group");
-        for (const group in groups) {
-            const name = group.querySelector(".name");
-            const matchmaker = group.querySelector(".matchmaker");
+        for (const group of groups) {
 
-            showName(name, groups);
-
-            displayMatchmakerInfo(matchmaker);
+            showName(group, groups);
+            showMatchmakerInfo(group);
+            showMatchmakerParameters(group);
+            showScorerInfo(group);
+            showScorerParameters(group);
         }
     };
 
-    const showName = (name, groups) => {
-        name.style.display = (groups.length > 1) ? "block" : "none";
+    const showName = (group, groups) => {
+        const name = group.querySelector(".group-name");
+        show(name, groups.length > 1);
     };
 
-    const displayMatchmakerInfo = (matchmaker) => {
+    const showMatchmakerInfo = (group) => {
+        const matchmaker = group.querySelector(".matchmaker");
+        const matchInfos = group.querySelectorAll(".match-info");
+        showSelectInfo(matchmaker, matchInfos);
+    };
 
+    const showMatchmakerParameters = (group) => {
+        const matchmaker = group.querySelector(".matchmaker");
+        const parameters = group.querySelector(".matchmaker-parameters-field");
+        showSelectInfo(matchmaker, [parameters]);
+    };
+
+    const showScorerInfo = (group) => {
+        const scorer = group.querySelector(".scorer");
+        const scorerInfos = group.querySelectorAll(".scorer-info");
+        showSelectInfo(scorer, scorerInfos);
+    };
+
+    const showScorerParameters = (group) => {
+        const scorer = group.querySelector(".scorer");
+        const scorerParameters = group.querySelectorAll(".scorer-parameters");
+        showSelectInfo(scorer, scorerParameters);
+    };
+
+    const show = (element, condition) => {
+        element.style.display = condition ? "block" : "none";
+    };
+
+    const layoutCheckboxes = () => {
+        const inputs = document.getElementsByTagName("dl");
+        for (const input of inputs) {
+            if (input.querySelector("input[type='checkbox']") != null){
+                for (const child of input.querySelectorAll("*")){
+                    child.style.display = "inline";
+                }
+            }
+        }
     };
 
     const ready = () => {
         onClick('login', auth.bind(false));
         onClick('logout', deauth);
-        toggleLanguageParams();
+        showLanguageParams();
+        showGroupInfo();
+        layoutCheckboxes();
     };
 
     if (document.readyState === "loading") {
