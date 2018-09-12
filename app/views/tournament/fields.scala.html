@@ -17,13 +17,15 @@
     @CSRF.formField
     @inputText(tournamentForm("iterationGoal"), 'type -> "number", '_label -> "* Iteration Goal", '_help -> "The number of games to run", 'required -> "true")
 
+    <div id="groups">
+        <div class="row">
     @helper.repeatWithIndex(tournamentForm("group"), min = 1) { (group, index) =>
 
-        <div class="group group@index">
+        <div class="group six columns" id="group@index">
             <div class="group-name">
                 @inputText(group("name"), '_label -> "* Group name", '_help -> "The name used to determine which group the bots go in")
             </div>
-            @inputText(group("size"), 'type -> "number", '_label -> "* Game size", '_help -> "The number of players in each game", 'required -> "true")
+            @inputText(group("size"), 'type -> "number", '_label -> "* Game/Group size", '_help -> "The number of players in this game/group", 'required -> "true")
             @select(group("matchmaker"),
                 options = Enum.enumValues(classOf[Group.Matchmaker]),
                 'class -> "matchmaker",
@@ -53,18 +55,22 @@
             <span class="scorer-info single-transferable-vote">Scores players by the number of wins.  Consists of a series of rounds, where each round throws out the lowest ranked player, and distributes the wins</span>
             <span class="scorer-info rank-points">Each ranking within a game is assigned a fixed number of points.  The player with the most points wins</span>
             <div class="scorer-parameters condorcet">
-                @select(group("scorer-parameters-condorcet"),
+                @select(group("scorerParametersCondorcet"),
                     options = Enum.enumValues(classOf[Group.CondorcetTiebreakers]),
                     '_label -> "* Tiebreaker:",
                     '_help -> "The tiebreaker used in Condorcet")
             </div>
             <div class="scorer-parameters rank-points">
-                @inputText(group("scorer-parameters-rank-points"), '_label -> "* Please enter a list of comma-delimited rank points:")
+                @inputText(group("scorerParametersRankPoints"), '_label -> "* Please enter a list of comma-delimited rank points:")
             </div>
             @checkbox(group("rankDescending"), '_label -> "Rank descending:")
-        </div>
 
+            <a href="#" class="remove-group">Remove group</a>
+        </div>
     }
+        </div>
+    </div>
+    <a href="#" id="add-group">Add Group</a>
 
 </fieldset>
 

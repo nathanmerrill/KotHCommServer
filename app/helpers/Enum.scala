@@ -8,15 +8,19 @@ object Enum {
 
   def enumContains[T <: Enum[T]](enumType: Class[T]): Mapping[T] = Forms.of[T](enumBinder(enumType))
 
+  def enumValue[T <: Enum[T]](enumType: Class[T], value: String): Option[T] = {
+    enumType.getEnumConstants.find { c =>
+      value.equals(getEnumValue(enumType, c))
+    }
+  }
+
   def enumBinder[T <: Enum[T]](enumType: Class[T]): Formatter[T] = new Formatter[T] {
 
     override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], T] = {
       data.get(key) match {
         case None => Left(Seq(FormError("error.invalidEnum", "Value required", Nil)))
         case Some(value) =>
-          enumType.getEnumConstants.find { c =>
-            value.equals(getEnumValue(enumType, c))
-          } match {
+          enumValue(enumType, value) match {
             case Some(f) => Right(f)
             case None => Left(Seq(FormError("error.invalidEnum", "Invalid value for " + enumType.getSimpleName + ": " + value, Nil)))
           }

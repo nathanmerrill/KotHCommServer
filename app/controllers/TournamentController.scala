@@ -3,14 +3,15 @@ package controllers
 import comm.{Downloader, UnableToDownloadException}
 import helpers.Enum
 import javax.inject._
-import models.{Challenge, Group, Tournament}
+import models.{Challenge, Group, Tournament, User}
 import play.api.Configuration
 import play.api.data.{Form, Mapping}
 import play.api.data.Forms._
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import play.api.libs.json.Json
 import play.api.mvc._
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -27,16 +28,16 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
   }
 
   def create(challengeId: Long): Action[AnyContent] = Action.async { implicit request =>
-    challengeCheck(challengeId, (_, _) =>
-      Future.successful(Ok(views.html.tournament.create(challengeId, tournamentForm)))
+    challengeCheck(challengeId, (_, challenge) =>
+      Future.successful(Ok(views.html.tournament.create(challenge, tournamentForm)))
     )
   }
 
   def save(challengeId: Long): Action[AnyContent] = Action.async { implicit request =>
-    challengeCheck(challengeId, (_, _) =>
+    challengeCheck(challengeId, (_, challenge) =>
       tournamentForm.bindFromRequest.fold(
         formWithErrors => {
-          Future.successful(BadRequest(views.html.tournament.create(challengeId, formWithErrors)))
+          Future.successful(BadRequest(views.html.tournament.create(challenge, formWithErrors)))
         },
         tournament => {
           tournaments.count(challengeId).flatMap(count => {
@@ -119,14 +120,52 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
     }
   }
 
-  // Check stack exchange ID
-  // Check if git repo exists
-  // Attempt compiling controller
-  // Attempt building a submission
-  // Attempt running a game
-
   def requiresBuildParameters(language: Challenge.Language): Boolean = {
     Set(Challenge.Language.JAVA, Challenge.Language.PYTHON_2, Challenge.Language.PYTHON_3).contains(language)
+  }
+
+  private def validateTournament(implicit request: Request[AnyContent]): Either[Form[Tournament], Tournament] = {
+    var form = tournamentForm.bindFromRequest
+    form.value match {
+      case None => Left(form)
+      case Some(tournament) => {
+        if (tournament.groups.size == 0){
+          form = form.withError("group", "At least 1 group is required")
+        }
+        if (tournament.groups.size > 1) {
+
+        }
+
+        Right(tournament)
+      }
+    }
+  }
+  private def nullOrEmpty(str: String):Boolean = str == null || str.isEmpty
+
+  def tournamentConstraint(tournament:Tournament):Seq[(String, String)] = {
+      if (tournament.groups.size == 0){
+        Invalid(Seq(ValidationError("At least 1 group is required")))
+      }
+      val multipleGroups = tournament.groups.size > 1
+      val checks = List[((Group => Boolean), (String, String))](
+        ((group: Group) => nullOrEmpty(group.name) && multipleGroups) -> ("name", "Name is required"),
+        ((group: Group) => group.matchmaker == Group.Matchmaker.TOURNAMENT && group.size != 2) -> ("matchmaker", "Game size must be 2"),
+        ((group: Group) => nullOrEmpty(group.matchmakerParameters) && (group.matchmaker == Group.Matchmaker.ELITIST_SELETION || group.matchmaker == Group.Matchmaker.TOURNAMENT)) -> ("matchmakerParameters", "Required"),
+        ((group: Group) => nullOrEmpty(group.scorerParameters) && group.scorer == Group.Scorer.CONDORCET) -> ("scorer-parameters-condorcet", "Required"),
+        ((group: Group) => group.scorer == Group.Scorer.RANK_POINTS && Enum.enumValue(classOf[Group.Scorer], group.scorerParameters).isEmpty) -> ("scorer-parameters-rank-points", "Required")
+      )
+    //TODO: Add check for commands in rank points
+
+      tournament.groups.asScala.flatMap(group => {
+        checks.flatMap(tuple => {
+          val (check, error) = tuple
+          if (check.apply(group)) {
+            Some(error)
+          } else {
+            None
+          }
+        })
+      })
   }
 
   private val groupMapping: Mapping[Group] = mapping(
@@ -135,14 +174,23 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
     "matchmaker" -> Enum.enumContains(classOf[Group.Matchmaker]),
     "matchmakerParameters" -> text,
     "scorer" -> Enum.enumContains(classOf[Group.Scorer]),
+    "scorerParametersCondorcet" -> text,
+    "scorerParametersRankPoints" -> text,
     "rankDescending" -> boolean,
-  )((name: String, size: Int, matchmaker: Group.Matchmaker, matchmakerParameters: String, scorer: Group.Scorer, rankDescending: Boolean) => {
+    // https://stackoverflow.com/questions/12100698/play-framework-2-0-validate-field-in-forms-using-other-fields
+  )((name: String, size: Int, matchmaker: Group.Matchmaker, matchmakerParameters: String, scorer: Group.Scorer, parameterCondorcet: String, parameterRankPoints: String, rankDescending: Boolean) => {
     val newGroup = new Group
     newGroup.name = name
     newGroup.size = size
     newGroup.matchmaker = matchmaker
     newGroup.matchmakerParameters = matchmakerParameters
     newGroup.scorer = scorer
+    if (newGroup.scorer == Group.Scorer.CONDORCET){
+      newGroup.matchmakerParameters = parameterCondorcet
+    }
+    if (newGroup.scorer == Group.Scorer.RANK_POINTS) {
+      newGroup.matchmakerParameters = parameterRankPoints
+    }
     newGroup.rankDescending = rankDescending
     newGroup
   })(group => {
