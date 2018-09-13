@@ -7,7 +7,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name = "group")
+@Table(name = "groups")
 public class Group extends BaseModel {
 
     private static final long serialVersionUID = 1L;

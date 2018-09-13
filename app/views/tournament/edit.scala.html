@@ -4,7 +4,6 @@
 @import helpers.Enum
 
 @main(title="Edit "+tournamentModel.challenge.name + " #"+tournamentModel.configuration) {
-
     @form(routes.TournamentController.update(tournamentModel.id)) {
         @tournament.fields(tournamentForm)
 
@@ -12,7 +11,5 @@
             <input type="submit" value="Update tournament" class="primary"> or
             <a href="@routes.TournamentController.view(tournamentModel.id)" class="btn">Cancel</a>
         </div>
-
     }
-
 }

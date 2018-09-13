@@ -7,7 +7,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name="user")
+@Table(name="users")
 public class User extends BaseModel {
 
     private static final long serialVersionUID = 1L;

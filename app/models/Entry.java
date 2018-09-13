@@ -22,6 +22,9 @@ public class Entry extends BaseModel {
 
     public String refId;
 
+    @Column(nullable = false)
+    public EntryVersion latestVersion;
+
     @OneToMany(mappedBy = "entry", cascade = CascadeType.ALL, targetEntity = EntryVersion.class)
     public List<EntryVersion> versions;
 

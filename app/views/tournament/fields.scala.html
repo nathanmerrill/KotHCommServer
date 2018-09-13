@@ -25,12 +25,11 @@
             <div class="group-name">
                 @inputText(group("name"), '_label -> "* Group name", '_help -> "The name used to determine which group the bots go in")
             </div>
-            @inputText(group("size"), 'type -> "number", '_label -> "* Game/Group size", '_help -> "The number of players in this game/group", 'required -> "true")
+            @inputText(group("size"), 'type -> "number", '_label -> "* Game/Group size", '_help -> "The number of players in this game/group.  Use 0 for all", 'required -> "true")
             @select(group("matchmaker"),
                 options = Enum.enumValues(classOf[Group.Matchmaker]),
                 'class -> "matchmaker",
-                '_label -> "* Matchmaker",
-                '_help -> "How to select which players go in which games")
+                '_label -> "* Matchmaker")
             <span class="match-info random-sample">Randomly shuffles and selects the players in each game</span>
             <span class="match-info similar-score">Pairs players with similar scores.  Useful to de-clump scores</span>
             <span class="match-info sobol">Pairs players using <a href="https://en.wikipedia.org/wiki/Sobol_sequence">Sobol sequences</a>
@@ -43,8 +42,7 @@
                 @select(group("scorer"),
                     options = Enum.enumValues(classOf[Group.Scorer]),
                     'class -> "scorer",
-                    '_label -> "* Scorer",
-                    '_help -> "How to obtain the overall ranking")
+                    '_label -> "* Scorer")
             <span class="scorer-info arithmetic-mean">Ranks the players by their average score</span>
             <span class="scorer-info geometric-mean">Ranks the players by their geometric mean.  De-emphasizes outlier games:  Particularly bad or good games won't have as large of an effect on the final score</span>
             <span class="scorer-info median">Ranks the player by their median score.  Completely ignores outlier games</span>
@@ -63,7 +61,7 @@
             <div class="scorer-parameters rank-points">
                 @inputText(group("scorerParametersRankPoints"), '_label -> "* Please enter a list of comma-delimited rank points:")
             </div>
-            @checkbox(group("rankDescending"), '_label -> "Rank descending:")
+            @checkbox(group("rankDescending"), '_label -> "* Rank descending:")
 
             <a href="#" class="remove-group">Remove group</a>
         </div>

@@ -1,7 +1,5 @@
 package models;
 
-import io.ebean.annotation.EnumValue;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -22,12 +20,10 @@ public class EntryVersion extends BaseModel {
     public String code;
 
     @Column(nullable = false)
-    public Language language;
+    public String language;
 
-    public enum Language {
-        @EnumValue("Java")
-        JAVA
-    }
+    @Column
+    public Boolean valid;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "version", targetEntity = TournamentEntry.class)
     public List<TournamentEntry> tournamentEntries;

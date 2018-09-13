@@ -1,5 +1,16 @@
 @(tournament: Tournament)(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
-@main(title = tournament.challenge.name + " Tournament #"+tournament.configuration) {
+@import helpers.ViewLogic
 
+@main(title = tournament.challenge.name + " Tournament #"+tournament.configuration) {
+    <div class="title-action">
+        @if(ViewLogic.canEdit(tournament.challenge)) {
+            <a class="button" href="@routes.TournamentController.edit(tournament.id)">Edit</a>
+        }
+        @if(ViewLogic.isActive(tournament)) {
+            <div class="status active">Active</div>
+        } else {
+            <div class="status inactive">Inactive</div>
+        }
+    </div>
 }

@@ -14,7 +14,9 @@ class TournamentRepository @Inject()(val ebeanConfig: EbeanConfig, val execution
   def view(id: Long): Future[Option[Tournament]] =
     getOne {
       query
-        .fetch("challenge", "id,name")
+        .fetch("challenge", "id,name,status")
+        .fetch("challenge.owner", "id,")
+        .fetch("challenge.activeTournament", "id")
         .fetch("entries", "id,rank")
         .fetch("entries.version", "id,name")
         .fetch("games", "id,startTime,endTime")
@@ -22,7 +24,7 @@ class TournamentRepository @Inject()(val ebeanConfig: EbeanConfig, val execution
 
   def all(challengeId: Long): Future[List[Tournament]] = getList {
     query
-      .where().eq("challengeId", challengeId)
+      .where().eq("challenge.id", challengeId)
       .orderBy("createdAt")
       .select("name,createdAt")
       .fetch("owner", "id,name")
@@ -30,7 +32,7 @@ class TournamentRepository @Inject()(val ebeanConfig: EbeanConfig, val execution
 
   def count(challengeId: Long): Future[Int] =
     execute {
-      query.where().eq("challengeId", challengeId).findCount()
+      query.where().eq("challenge.id", challengeId).findCount()
     }
 
   def update(data: Tournament): Future[Option[Tournament]] = {

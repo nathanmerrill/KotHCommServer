@@ -6,7 +6,7 @@ import java.util.List;
 
 
 @Entity
-@Table(name="tournamentEntry")
+@Table(name="tournament_entry")
 public class TournamentEntry extends BaseModel {
 
     private static final long serialVersionUID = 1L;

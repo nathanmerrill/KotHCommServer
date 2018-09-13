@@ -3,11 +3,11 @@ package controllers
 import comm.{Downloader, UnableToDownloadException}
 import helpers.Enum
 import javax.inject._
-import models.{Challenge, Group, Tournament, User}
+import models.{Challenge, Group, Tournament}
 import play.api.Configuration
-import play.api.data.{Form, Mapping}
 import play.api.data.Forms._
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import play.api.data.validation.{Invalid, ValidationError}
+import play.api.data.{Form, Mapping}
 import play.api.libs.json.Json
 import play.api.mvc._
 
@@ -15,7 +15,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
+import scala.util.{Random, Try}
 
 @Singleton
 class TournamentController @Inject()(val cc: ControllerComponents, downloader: Downloader, implicit val config: Configuration) extends KothController(cc) {
@@ -42,6 +42,7 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
         tournament => {
           tournaments.count(challengeId).flatMap(count => {
             tournament.configuration = count + 1
+            tournament.challenge = challenge
             tournaments.insert(tournament).map(tournament =>
               Redirect(routes.TournamentController.view(tournament.id))
             )
@@ -150,11 +151,19 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
       val checks = List[((Group => Boolean), (String, String))](
         ((group: Group) => nullOrEmpty(group.name) && multipleGroups) -> ("name", "Name is required"),
         ((group: Group) => group.matchmaker == Group.Matchmaker.TOURNAMENT && group.size != 2) -> ("matchmaker", "Game size must be 2"),
-        ((group: Group) => nullOrEmpty(group.matchmakerParameters) && (group.matchmaker == Group.Matchmaker.ELITIST_SELETION || group.matchmaker == Group.Matchmaker.TOURNAMENT)) -> ("matchmakerParameters", "Required"),
-        ((group: Group) => nullOrEmpty(group.scorerParameters) && group.scorer == Group.Scorer.CONDORCET) -> ("scorer-parameters-condorcet", "Required"),
-        ((group: Group) => group.scorer == Group.Scorer.RANK_POINTS && Enum.enumValue(classOf[Group.Scorer], group.scorerParameters).isEmpty) -> ("scorer-parameters-rank-points", "Required")
+        ((group: Group) => {
+          nullOrEmpty(group.matchmakerParameters) &&
+            (group.matchmaker == Group.Matchmaker.ELITIST_SELETION || group.matchmaker == Group.Matchmaker.TOURNAMENT)
+        }) -> ("matchmakerParameters", "Required"),
+        ((group: Group) => {
+          group.scorer == Group.Scorer.CONDORCET &&
+            (nullOrEmpty(group.scorerParameters) || group.scorerParameters.split(',').exists(point => Try(point.toInt).isFailure))
+        }) -> ("scorer-parameters-condorcet", "Required"),
+        ((group: Group) =>
+          group.scorer == Group.Scorer.RANK_POINTS &&
+            Enum.enumValue(classOf[Group.Scorer], group.scorerParameters).isEmpty
+          ) -> ("scorer-parameters-rank-points", "Required")
       )
-    //TODO: Add check for commands in rank points
 
       tournament.groups.asScala.flatMap(group => {
         checks.flatMap(tuple => {
@@ -170,7 +179,7 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
 
   private val groupMapping: Mapping[Group] = mapping(
     "name" -> text,
-    "size" -> number,
+    "size" -> number.verifying("Must be positive", _ >= 0),
     "matchmaker" -> Enum.enumContains(classOf[Group.Matchmaker]),
     "matchmakerParameters" -> text,
     "scorer" -> Enum.enumContains(classOf[Group.Scorer]),
@@ -194,23 +203,21 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
     newGroup.rankDescending = rankDescending
     newGroup
   })(group => {
-    Some((group.name, group.size, group.matchmaker, group.matchmakerParameters, group.scorer, group.rankDescending))
+    Some((group.name, group.size, group.matchmaker, group.matchmakerParameters, group.scorer, group.scorerParameters, group.scorerParameters, group.rankDescending))
   })
 
   private val tournamentForm: Form[Tournament] = Form[Tournament](
     mapping(
-      "gitHash" -> text,
       "iterationGoal" -> number,
       "group" -> list[Group](groupMapping),
-    )((gitHash: String, iterationGoal: Int, groups: List[Group]) => {
+    )((iterationGoal: Int, groups: List[Group]) => {
       val newTournament = new Tournament
-      newTournament.gitHash = gitHash
       newTournament.iterationGoal = iterationGoal
       newTournament.version = Random.alphanumeric.take(12).toString()
       newTournament.groups = groups.asJava
       newTournament
     })(tournament => {
-      Some((tournament.gitHash, tournament.iterationGoal, tournament.groups.asScala.toList))
+      Some((tournament.iterationGoal, tournament.groups.asScala.toList))
     })
   )
 }
