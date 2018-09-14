@@ -1,5 +1,8 @@
 package controllers
 
+import java.util.concurrent.TimeUnit
+
+import akka.actor.ActorSystem
 import comm.{Downloader, UnableToDownloadException}
 import helpers.Enum
 import javax.inject._
@@ -13,9 +16,10 @@ import play.api.mvc._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.FiniteDuration
 
 @Singleton
-class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader, implicit val config: Configuration) extends KothController(cc) {
+class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader,actorSystem: ActorSystem, implicit val config: Configuration) extends KothController(cc) {
 
   def index: Action[AnyContent] = Action.async { implicit request =>
     challenges.all().map(list => {
@@ -107,7 +111,9 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
           }
         }
         if (repoValid) {
+          actorSystem.scheduler.scheduleOnce(delay = new FiniteDuration(0, TimeUnit.SECONDS)) {
 
+          }
         }
         var response: Future[Any] = Future.successful("")
         futures.foreach { future =>
