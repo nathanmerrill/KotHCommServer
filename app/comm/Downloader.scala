@@ -10,14 +10,9 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import scala.concurrent.{ExecutionContext, Future}
 
 object Downloader {
-  //Includes: answer_id, body, last_edit_date, question_id, owner.display_name, owner.user_id
-  val filter = "!.FjwPGDVPw6_*p1K.dONY5*2)WjK*"
 
   class UnableToDownloadException(message: String) extends Exception(message)
   case class Submission(name: String, body: String, answer_id: String, question_id: String, owner_name: String, user_id: String)
-  case class SeResponse(has_more: Boolean, quota_max: Int, quota_remaining: Int, items: List[SeAnswer])
-  case class SeAnswer(owner: SeOwner, answer_id: Int, question_id: Int, body: String)
-  case class SeOwner(user_id: Int, display_name: String)
 }
 
 
@@ -74,5 +69,11 @@ class Downloader @Inject()(se: SeApi) {
   //    val contents = codeBlock.substring(lineIndex)
   //    writeFile(dest, contents)
   //  }
+
+
+  private val filter = "!.FjwPGDVPw6_*p1K.dONY5*2)WjK*"
+  private case class SeResponse(has_more: Boolean, quota_max: Int, quota_remaining: Int, items: List[SeAnswer])
+  private case class SeAnswer(owner: SeOwner, answer_id: Int, question_id: Int, body: String)
+  private case class SeOwner(user_id: Int, display_name: String)
 
 }
