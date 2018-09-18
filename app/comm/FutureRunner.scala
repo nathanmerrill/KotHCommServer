@@ -1,25 +1,16 @@
 package comm
 
 import akka.actor.ActorSystem
-import comm.FutureRunner.TaskToken
+import akka.pattern.ask
+import comm.FutureActor.TaskToken
 import javax.inject.Inject
 
 import scala.concurrent.Future
 
 
-
-object FutureRunner {
-  case class TaskToken(id: Int)
-  object Status extends Enumeration {
-    type Status = Value
-    val Running, Finished, Error = Value
-  }
-}
-
 class FutureRunner @Inject()(system: ActorSystem) {
-  def run[T](future: Future[T]): TaskToken = {
-
+  def run[T](future: Future[T]): Future[TaskToken] = {
+    val actor = system.actorOf(FutureActor.props, "future-runner")
+    (actor ? future).mapTo[TaskToken]
   }
-
-
 }

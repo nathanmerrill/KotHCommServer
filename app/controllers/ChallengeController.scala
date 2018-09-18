@@ -1,9 +1,7 @@
 package controllers
 
-import java.util.concurrent.TimeUnit
-
-import akka.actor.ActorSystem
-import comm.{Downloader, UnableToDownloadException}
+import comm.{Downloader, FutureRunner, UnableToDownloadException}
+import scala.collection.JavaConverters._
 import helpers.Enum
 import javax.inject._
 import models.{Challenge, User}
@@ -16,10 +14,9 @@ import play.api.mvc._
 import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
 
 @Singleton
-class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader,actorSystem: ActorSystem, implicit val config: Configuration) extends KothController(cc) {
+class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader, futureRunner: FutureRunner, implicit val config: Configuration) extends KothController(cc) {
 
   def index: Action[AnyContent] = Action.async { implicit request =>
     challenges.all().map(list => {
@@ -82,14 +79,14 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
     }
   }
 
-  def checkChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
+  def readyChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).flatMap {
       case None => Future.successful(Results.NotFound)
       case Some(challenge) =>
         val errors = ListBuffer[String]()
         var repoValid = true
         var challengeValid = true
-        val futures = ListBuffer[Future[Any]]()
+        var futures = List[Future[Any]]()
         if (challenge.repoUrl.isEmpty) {
           errors += "Unable to check controller: Please add a git URL"
           repoValid = false
@@ -100,20 +97,19 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
         }
         if (challenge.refId.isEmpty) {
           errors += "Unable to check Stack Exchange post.  Please add the ID of the challenge post"
-          Future.successful(Results.NotFound)
           challengeValid = false
         } else {
-          futures += downloader.downloadQuestions(challenge.refId).recover {
+          val future = downloader.downloadSubmissions(challenge.refId)
+            .recover {
             case e: UnableToDownloadException =>
-              errors + "Error when attempting to read challenge: " + e.getMessage
+              errors += "Error when attempting to read challenge: " + e.getMessage
               challengeValid = false
               Seq()
+          }.flatMap { entries =>
+            challenge.entries = entries.toList.asJava
+            challenges.insert(challenge)
           }
-        }
-        if (repoValid) {
-          actorSystem.scheduler.scheduleOnce(delay = new FiniteDuration(0, TimeUnit.SECONDS)) {
-
-          }
+          futures += future
         }
         var response: Future[Any] = Future.successful("")
         futures.foreach { future =>

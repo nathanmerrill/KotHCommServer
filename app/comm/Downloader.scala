@@ -1,6 +1,7 @@
 package comm
 
 import javax.inject.Inject
+import models.Entry
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import play.api.libs.json.JsValue
 import net.ruippeixotog.scalascraper.dsl.DSL._
@@ -8,35 +9,42 @@ import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+object Downloader {
+  //Includes: answer_id, body, last_edit_date, question_id, owner.display_name, owner.user_id
+  val filter = "!.FjwPGDVPw6_*p1K.dONY5*2)WjK*"
+
+  class UnableToDownloadException(message: String) extends Exception(message)
+  case class Submission(name: String, body: String, answer_id: String, question_id: String, owner_name: String, user_id: String)
+  case class SeResponse(has_more: Boolean, quota_max: Int, quota_remaining: Int, items: List[SeAnswer])
+  case class SeAnswer(owner: SeOwner, answer_id: Int, question_id: Int, body: String)
+  case class SeOwner(user_id: Int, display_name: String)
+}
+
 
 class Downloader @Inject()(se: SeApi) {
+  import Downloader._
 
-  def downloadQuestions(questionId: String)(implicit executor: ExecutionContext) : Future[Seq[Entry]] = {
-    se.request("questions/" + questionId + "answers", Map(("filter", "FcbKgRqyv4bqdqoj9fAB6fZ05P")))
+  def downloadSubmissions(questionId: String)(implicit executor: ExecutionContext) : Future[Seq[Entry]] = {
+    se.request("questions/" + questionId + "/answers", Map(("filter", filter)))
       .map {
         case Left(error: String) => throw new UnableToDownloadException(error)
-        case Right(json: JsValue) =>
-          (json \\ "body")
-            .map(s => parseHtml(s.as[String]))
-            .collect { case Some(s) => s }
+        case Right(json: JsValue) => {
+          val response = json.as[SeResponse]
+
+          (json \\ "body").flatMap(s => parseHtml(s.as[String])).map{ p =>
+            val (name, body) = p
+            new Submission(name, body, )
+          }
+          Seq()
+        }
       }
   }
 
-  private def parseHtml(html: String): Option[Entry] = {
+  private def parseHtml(html: String): Option[(String, String)] = {
     val document = new JsoupBrowser().parseString(html)
-    document >?> text("h1,h2,h3,h4,h5,h6") match {
-      case None => None
-      case Some(header) =>
-        if (header.contains("Invalid")) {
-          None
-        } else {
-          val name = header.split(",")(0)
-          document >?> text("pre>code") match {
-            case None => None
-            case Some(code) => Some(Entry(name, code))
-          }
-        }
-    }
+    val header = (document >?> text("h1,h2,h3,h4,h5,h6")).filterNot(_.contains("Invalid"))
+    val code = document >?> text("pre>code")
+    header.zip(code).headOption
   }
 
   //
@@ -68,7 +76,3 @@ class Downloader @Inject()(se: SeApi) {
   //  }
 
 }
-
-case class Entry(name: String, code: String)
-
-class UnableToDownloadException(message: String) extends Exception(message)

@@ -157,7 +157,7 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
         }) -> ("matchmakerParameters", "Required"),
         ((group: Group) => {
           group.scorer == Group.Scorer.CONDORCET &&
-            (nullOrEmpty(group.scorerParameters) || group.scorerParameters.split(',').exists(point => zzzzasaAAAAAAASXasdxfc 4wsbvafqqqqqqqqqqqqqqqqqqqqqqqqqqqszszsqqqqqqqqq)
+            (nullOrEmpty(group.scorerParameters) || group.scorerParameters.split(',').exists(point => Try(Integer.parseInt(point)).isFailure))
         }) -> ("scorer-parameters-condorcet", "Required"),
         ((group: Group) =>
           group.scorer == Group.Scorer.RANK_POINTS &&
