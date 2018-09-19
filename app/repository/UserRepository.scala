@@ -23,7 +23,7 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
       fetchByUsername(username)
     }
 
-  def insertOrUpdate(username: String, name: String, authentication: String): Future[User] = {
+  def insertOrUpdate(username: String, name: String, authentication: String = ""): Future[User] = {
     execute {
       val user = fetchByUsername(username) match {
         case Some(u) => u
@@ -37,7 +37,9 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
           u
       }
       user.name = name
-      user.authentication = authentication
+      if (!authentication.isEmpty) {
+        user.authentication = authentication
+      }
       ebeanServer.save(user)
       user
     }
@@ -48,6 +50,10 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
       ebeanServer.update(user)
       user
     }
+  }
+
+  private def fetchUser(username: String, name: String, authentication: String): User = {
+
   }
 
   private def fetchByUsername(username: String): Option[User] = {

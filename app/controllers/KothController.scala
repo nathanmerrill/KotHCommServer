@@ -4,7 +4,7 @@ import io.ebean.Ebean
 import javax.inject.Inject
 import models.{Challenge, Tournament, User}
 import play.api.mvc._
-import repository.{ChallengeRepository, TournamentRepository, UserRepository}
+import repository._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,11 +14,13 @@ class KothController(cc: ControllerComponents) extends AbstractController(cc) wi
   @Inject() var challenges: ChallengeRepository = _
   @Inject() var tournaments: TournamentRepository = _
   @Inject() var users: UserRepository = _
+  @Inject() var entries: EntryRepository = _
+  @Inject() var entryVersions: EntryVersionRepository = _
 
   var redirectHome: Future[Result] =
     Future.successful(Results.Redirect(routes.ChallengeController.index()))
 
-  def userCheck(role: User.UserRole, action: User => Future[Result])(implicit request: RequestHeader): Future[Result] = {
+  def userCheck(role: User.UserRole)(action: User => Future[Result])(implicit request: RequestHeader): Future[Result] = {
         request.session.get("user") match {
       case None => redirectHome
       case Some(userJson) =>
@@ -38,8 +40,8 @@ class KothController(cc: ControllerComponents) extends AbstractController(cc) wi
     }
   }
 
-  def challengeCheck(challengeId: Long, action: (User, Challenge) => Future[Result])(implicit request: RequestHeader): Future[Result] = {
-    userCheck(User.UserRole.CREATOR, user => {
+  def challengeCheck(challengeId: Long)(action: (User, Challenge) => Future[Result])(implicit request: RequestHeader): Future[Result] = {
+    userCheck(User.UserRole.CREATOR){ user =>
       challenges.getOne(challengeId).flatMap(challengeOpt => {
         if (challengeOpt.isEmpty){
           redirectHome
@@ -52,12 +54,12 @@ class KothController(cc: ControllerComponents) extends AbstractController(cc) wi
           }
         }
       })
-    })
+    }
   }
 
 
   def tournamentCheck(tournamentId: Long, action: (User, Tournament) => Future[Result])(implicit request: RequestHeader): Future[Result] = {
-    userCheck(User.UserRole.CREATOR, user => {
+    userCheck(User.UserRole.CREATOR){ user =>
       tournaments.getOne(tournamentId).flatMap(tournamentOpt => {
         if (tournamentOpt.isEmpty){
           redirectHome
@@ -70,7 +72,7 @@ class KothController(cc: ControllerComponents) extends AbstractController(cc) wi
           }
         }
       })
-    })
+    }
   }
 
 }

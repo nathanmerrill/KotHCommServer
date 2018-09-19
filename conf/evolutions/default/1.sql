@@ -126,7 +126,7 @@ create table users (
   username                  varchar(255) not null unique,
   name                      varchar(255) not null,
   role                      varchar(255) not null,
-  authentication            text not null,
+  authentication            text,
   created_at                timestamp not null,
   constraint pk_user primary key (id))
 ;

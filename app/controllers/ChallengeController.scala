@@ -1,19 +1,19 @@
 package controllers
 
-import comm.{Downloader, FutureRunner, UnableToDownloadException}
-import scala.collection.JavaConverters._
+import comm.Downloader.UnableToDownloadException
+import comm.{Downloader, FutureRunner}
 import helpers.Enum
 import javax.inject._
-import models.{Challenge, User}
+import models.{Challenge, Entry, EntryVersion, User}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
 
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Success
 
 @Singleton
 class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader, futureRunner: FutureRunner, implicit val config: Configuration) extends KothController(cc) {
@@ -32,13 +32,13 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
   }
 
   def create(): Action[AnyContent] = Action.async { implicit request =>
-    userCheck(User.UserRole.CREATOR, _ =>
+    userCheck(User.UserRole.CREATOR) { _ =>
       Future.successful(Ok(views.html.challenge.create(challengeForm)))
-    )
+    }
   }
 
   def save(): Action[AnyContent] = Action.async { implicit request =>
-    userCheck(User.UserRole.CREATOR, user =>
+    userCheck(User.UserRole.CREATOR) { user =>
       challengeForm.bindFromRequest.fold(
         formWithErrors => {
           Future.successful(BadRequest(views.html.challenge.create(formWithErrors)))
@@ -51,11 +51,11 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
           )
         }
       )
-    )
+    }
   }
 
   def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    challengeCheck(id, (user, challenge) =>
+    challengeCheck(id) { (user, challenge) =>
       Future.successful(challengeForm.bindFromRequest.fold(
         formWithErrors => {
           BadRequest(views.html.challenge.edit(id, formWithErrors))
@@ -69,7 +69,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
           Redirect(routes.ChallengeController.view(id))
         }
       ))
-    )
+    }
   }
 
   def view(id: Long): Action[AnyContent] = Action.async { implicit request =>
@@ -79,48 +79,46 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
     }
   }
 
-  def readyChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    challenges.view(id).flatMap {
-      case None => Future.successful(Results.NotFound)
-      case Some(challenge) =>
-        val errors = ListBuffer[String]()
-        var repoValid = true
-        var challengeValid = true
-        var futures = List[Future[Any]]()
-        if (challenge.repoUrl.isEmpty) {
-          errors += "Unable to check controller: Please add a git URL"
-          repoValid = false
-        }
-        if (challenge.buildParameters.isEmpty && this.requiresBuildParameters(challenge.language)) {
-          errors += (challenge.language.toString + " requires Process name")
-          repoValid = false
-        }
-        if (challenge.refId.isEmpty) {
-          errors += "Unable to check Stack Exchange post.  Please add the ID of the challenge post"
-          challengeValid = false
-        } else {
-          val future = downloader.downloadSubmissions(challenge.refId)
-            .recover {
+  def fetchEntries(id: Long): Action[AnyContent] = Action.async { implicit request =>
+    this.challengeCheck(id){(user, challenge) =>
+      var errors = List[String]()
+      val future: Future[Seq[Entry]] =
+      if (challenge.refId.isEmpty)
+        Future.failed(new UnableToDownloadException("Unable to check Stack Exchange post. Please add the ID of the challenge post"))
+      else
+        downloader.downloadSubmissions(challenge.refId)
+          .recover {
             case e: UnableToDownloadException =>
               errors += "Error when attempting to read challenge: " + e.getMessage
-              challengeValid = false
               Seq()
           }.flatMap { entries =>
-            challenge.entries = entries.toList.asJava
-            challenges.insert(challenge)
-          }
-          futures += future
+          Future.sequence(entries.map(addEntry(_, challenge)))
         }
-        var response: Future[Any] = Future.successful("")
-        futures.foreach { future =>
-          response = response.flatMap(_ => future)
-        }
-        response.map(_ =>
-          Ok(Json.stringify(Json.obj(
-            "errors" -> Json.arr(errors),
-            "challengeValid" -> challengeValid.toString,
-            "repoValid" -> repoValid.toString
-          ))))
+      future.transform {response =>
+        Success(Ok(Json.stringify(Json.obj(
+          "error" -> response.failed.map(_.getMessage).getOrElse(""),
+          "success" -> response.isSuccess
+        ))))
+      }
+    }
+  }
+
+  private def addEntry(data: Downloader.Submission, challenge: Challenge): Future[Entry] ={
+    users.insertOrUpdate(data.ownerId, data.ownerName).flatMap{ user =>
+      val entry = new Entry()
+      entry.owner = user
+      entry.challenge = challenge
+      entry.currentName = data.name
+      entry.refId = data.answerId
+      entries.insert(entry)
+    }.flatMap{ entry =>
+      val version = new EntryVersion()
+      version.code = data.body
+      version.entry = entry
+      version.name = data.name
+      version.language = data.language
+      version.valid = data.valid
+      entryVersions.insert(version).map(_ => entry)
     }
   }
 

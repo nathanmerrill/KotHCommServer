@@ -15,7 +15,7 @@ public class User extends BaseModel {
     @Column(unique = true, nullable = false)
     public String username;
 
-    @Column(nullable = false)
+    @Column
     public String authentication;
 
     @Column(nullable = false)
