@@ -1,6 +1,6 @@
 package controllers
 
-import comm.{Downloader, UnableToDownloadException}
+import comm.Downloader
 import helpers.Enum
 import javax.inject._
 import models.{Challenge, Group, Tournament}
@@ -8,11 +8,9 @@ import play.api.Configuration
 import play.api.data.Forms._
 import play.api.data.validation.{Invalid, ValidationError}
 import play.api.data.{Form, Mapping}
-import play.api.libs.json.Json
 import play.api.mvc._
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Random, Try}
@@ -28,13 +26,13 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
   }
 
   def create(challengeId: Long): Action[AnyContent] = Action.async { implicit request =>
-    challengeCheck(challengeId, (_, challenge) =>
+    challengeCheck(challengeId) { (_, challenge) =>
       Future.successful(Ok(views.html.tournament.create(challenge, tournamentForm)))
-    )
+    }
   }
 
   def save(challengeId: Long): Action[AnyContent] = Action.async { implicit request =>
-    challengeCheck(challengeId, (_, challenge) =>
+    challengeCheck(challengeId) { (_, challenge) =>
       tournamentForm.bindFromRequest.fold(
         formWithErrors => {
           Future.successful(BadRequest(views.html.tournament.create(challenge, formWithErrors)))
@@ -49,14 +47,14 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
           })
         }
       )
-    )
+    }
   }
 
   def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
     tournaments.view(id).flatMap {
       case None => Future.successful(Results.NotFound)
       case Some(tournament) =>
-        challengeCheck(tournament.challenge.id, (_, _) =>
+        challengeCheck(tournament.challenge.id) { (_, _) =>
           Future.successful(tournamentForm.bindFromRequest.fold(
             formWithErrors => {
               BadRequest(views.html.tournament.edit(tournament, formWithErrors))
@@ -66,7 +64,7 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
               Redirect(routes.TournamentController.view(id))
             }
           ))
-        )
+        }
     }
   }
 
@@ -74,50 +72,6 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
     tournaments.view(id).map {
       case None => Results.NotFound
       case Some(tournament) => Ok(views.html.tournament.view(tournament))
-    }
-  }
-
-  def checkChallenge(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    challenges.view(id).flatMap {
-      case None => Future.successful(Results.NotFound)
-      case Some(challenge) =>
-        val errors = ListBuffer[String]()
-        var repoValid = true
-        var challengeValid = true
-        val futures = ListBuffer[Future[Any]]()
-        if (challenge.repoUrl.isEmpty) {
-          errors += "Unable to check controller: Please add a git URL"
-          repoValid = false
-        }
-        if (challenge.buildParameters.isEmpty && this.requiresBuildParameters(challenge.language)) {
-          errors += (challenge.language.toString + " requires Process name")
-          repoValid = false
-        }
-        if (challenge.refId.isEmpty) {
-          errors += "Unable to check Stack Exchange post.  Please add the ID of the challenge post"
-          Future.successful(Results.NotFound)
-          challengeValid = false
-        } else {
-          futures += downloader.downloadQuestions(challenge.refId).recover {
-            case e: UnableToDownloadException =>
-              errors + "Error when attempting to read challenge: " + e.getMessage
-              challengeValid = false
-              Seq()
-          }
-        }
-        if (repoValid) {
-
-        }
-        var response: Future[Any] = Future.successful("")
-        futures.foreach { future =>
-          response = response.flatMap(_ => future)
-        }
-        response.map(_ =>
-          Ok(Json.stringify(Json.obj(
-            "errors" -> Json.arr(errors),
-            "challengeValid" -> challengeValid.toString,
-            "repoValid" -> repoValid.toString
-          ))))
     }
   }
 
@@ -143,7 +97,7 @@ class TournamentController @Inject()(val cc: ControllerComponents, downloader: D
   }
   private def nullOrEmpty(str: String):Boolean = str == null || str.isEmpty
 
-  def tournamentConstraint(tournament:Tournament):Seq[(String, String)] = {
+  private def tournamentConstraint(tournament:Tournament):Seq[(String, String)] = {
       if (tournament.groups.size == 0){
         Invalid(Seq(ValidationError("At least 1 group is required")))
       }

@@ -12,6 +12,7 @@ POST    /challenges                  controllers.ChallengeController.save()
 GET     /challenges/:id              controllers.ChallengeController.view(id:Long)
 GET     /challenges/:id/edit         controllers.ChallengeController.edit(id:Long)
 POST    /challenges/:id              controllers.ChallengeController.update(id:Long)
+POST    /challenges/:id/fetch        controllers.ChallengeController.fetchEntries(id:Long)
 
 GET     /challenges/:id/new           controllers.TournamentController.create(id:Long)
 POST    /tournaments                  controllers.TournamentController.save(id: Long)

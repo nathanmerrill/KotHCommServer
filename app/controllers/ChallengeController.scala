@@ -8,7 +8,6 @@ import models.{Challenge, Entry, EntryVersion, User}
 import play.api.Configuration
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json.Json
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -80,25 +79,19 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
   }
 
   def fetchEntries(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    this.challengeCheck(id){(user, challenge) =>
+    this.challengeCheck(id) { (_, challenge) =>
       var errors = List[String]()
       val future: Future[Seq[Entry]] =
-      if (challenge.refId.isEmpty)
-        Future.failed(new UnableToDownloadException("Unable to check Stack Exchange post. Please add the ID of the challenge post"))
-      else
-        downloader.downloadSubmissions(challenge.refId)
-          .recover {
-            case e: UnableToDownloadException =>
-              errors += "Error when attempting to read challenge: " + e.getMessage
-              Seq()
-          }.flatMap { entries =>
-          Future.sequence(entries.map(addEntry(_, challenge)))
-        }
-      future.transform {response =>
-        Success(Ok(Json.stringify(Json.obj(
-          "error" -> response.failed.map(_.getMessage).getOrElse(""),
-          "success" -> response.isSuccess
-        ))))
+        if (challenge.refId.isEmpty)
+          Future.failed(new UnableToDownloadException("Unable to check Stack Exchange post. Please add the ID of the StackExchange challenge post"))
+        else
+          downloader.downloadSubmissions(challenge.refId).flatMap { entries =>
+            Future.sequence(entries.map(addEntry(_, challenge)))
+          }
+      future.transform { response => {
+        val error = response.failed.map(_.getMessage).getOrElse("")
+        Success(Ok(views.html.challenge.view(challenge)).addingToSession(("error", error)))
+      }
       }
     }
   }

@@ -16,9 +16,9 @@ class UserController @Inject()(cc: ControllerComponents, implicit val config: Co
 
 
   def me(): Action[AnyContent] = Action.async { implicit request =>
-    userCheck(User.UserRole.STANDARD, user => {
+    userCheck(User.UserRole.STANDARD){ user =>
       Future.successful(Redirect(routes.UserController.view(user.id)))
-    })
+    }
   }
 
 
@@ -30,7 +30,7 @@ class UserController @Inject()(cc: ControllerComponents, implicit val config: Co
   }
 
   def update(id: Long): Action[AnyContent] = Action.async { implicit request =>
-    userCheck(User.UserRole.ADMIN, _ => {
+    userCheck(User.UserRole.ADMIN){ _ =>
       users.getOne(id).flatMap {
         case None => redirectHome
         case Some(user) =>
@@ -45,7 +45,7 @@ class UserController @Inject()(cc: ControllerComponents, implicit val config: Co
             }
           )
       }
-    })
+    }
   }
 
   val userForm: Form[User] = Form[User](
