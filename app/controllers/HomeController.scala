@@ -55,7 +55,7 @@ class HomeController @Inject()(val cc: ControllerComponents, se: SeApi) extends 
 
 
   private def userDetails(accessToken: String): Future[SEUser] = {
-    se.request("me", se.defaultParameters ++ Map(("filter", "!*MxJcsxUh11DqknL"), ("access_token", accessToken)))
+    se.request("me", Map(("filter", "!*MxJcsxUh11DqknL"), ("access_token", accessToken)))
       .map {
         case Left(error) => throw new Exception(error)
         case Right(json) =>

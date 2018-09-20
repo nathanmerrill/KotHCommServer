@@ -13,8 +13,8 @@ class SeApi @Inject()(ws: WSClient, config: Configuration) {
   val key: String = config.get[String]("oauth.stackexchange.key")
   val defaultParameters: Map[String, String] = Map(("site", "codegolf"), ("key", key))
 
-  def request(request: String, parameters: Map[String, String] = defaultParameters)(implicit executor: ExecutionContext) : Future[Either[String,JsValue]] = {
-    val paramsString = parameters.map(pair => pair._1+"="+pair._2).mkString("&")
+  def request(request: String, parameters: Map[String, String] = Map())(implicit executor: ExecutionContext) : Future[Either[String,JsValue]] = {
+    val paramsString = (defaultParameters ++ parameters).map(pair => pair._1+"="+pair._2).mkString("&")
     ws.url("https://api.stackexchange.com/2.2/"+request+"?"+paramsString)
       .get()
       .map(response => {

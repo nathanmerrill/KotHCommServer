@@ -5,6 +5,7 @@ import comm.FutureActor.ActorStatus.ActorStatus
 
 import scala.concurrent.Future
 import scala.util.{Failure, Random, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object FutureActor {
   def props: Props = Props[FutureActor]

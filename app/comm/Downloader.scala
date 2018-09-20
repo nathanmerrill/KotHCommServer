@@ -4,7 +4,7 @@ import javax.inject.Inject
 import net.ruippeixotog.scalascraper.browser.JsoupBrowser
 import net.ruippeixotog.scalascraper.dsl.DSL.Extract._
 import net.ruippeixotog.scalascraper.dsl.DSL._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json, OFormat}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -21,6 +21,11 @@ class Downloader @Inject()(se: SeApi) {
 
   import Downloader._
 
+  implicit val seOwnerWrites: OFormat[SeOwner] = Json.format[SeOwner]
+  implicit val seAnswerWrites: OFormat[SeAnswer] = Json.format[SeAnswer]
+  implicit val seResponseWrites: OFormat[SeResponse] = Json.format[SeResponse]
+
+
   def downloadSubmissions(questionId: String)(implicit executor: ExecutionContext): Future[Seq[Submission]] = {
     se.request("questions/" + questionId + "/answers", Map(("filter", filter)))
       .map {
@@ -31,11 +36,11 @@ class Downloader @Inject()(se: SeApi) {
             val document = new JsoupBrowser().parseString(item.body)
             val header = (document >?> text("h1,h2,h3,h4,h5,h6")).getOrElse("").trim()
             val code = (document >?> text("pre>code")).getOrElse("")
-            val invalid = header.contains("Invalid") || header.isEmpty || code.isEmpty
+            val invalid = header.contains("Invalid") || header.isEmpty || code.isEmpty || item.owner.user_id.isEmpty
             val parts = header.split(',').take(2)
             val language = if (parts.length == 2) parts.last else ""
             val name = parts.head
-            Submission(name, code, item.answer_id.toString, item.owner.display_name, item.owner.user_id.toString, language, !invalid)
+            Submission(name, code, item.answer_id.toString, item.owner.display_name, item.owner.user_id.map(_.toString).getOrElse(item.owner.display_name), language, !invalid)
           }
         }
       }
@@ -72,10 +77,10 @@ class Downloader @Inject()(se: SeApi) {
 
   private val filter = "!.FjwPGDVPw6_*p1K.dONY5*2)WjK*"
 
-  private case class SeResponse(has_more: Boolean, quota_max: Int, quota_remaining: Int, items: List[SeAnswer])
+  case class SeResponse(has_more: Boolean, quota_max: Int, quota_remaining: Int, items: List[SeAnswer])
 
-  private case class SeAnswer(owner: SeOwner, answer_id: Int, question_id: Int, body: String)
+  case class SeAnswer(owner: SeOwner, answer_id: Int, question_id: Int, body: String)
 
-  private case class SeOwner(user_id: Int, display_name: String)
+  case class SeOwner(user_id: Option[Int], display_name: String)
 
 }

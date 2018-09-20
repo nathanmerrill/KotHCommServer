@@ -52,10 +52,6 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
     }
   }
 
-  private def fetchUser(username: String, name: String, authentication: String): User = {
-
-  }
-
   private def fetchByUsername(username: String): Option[User] = {
     Option(query
       .select("id,username,name,authentication,role")

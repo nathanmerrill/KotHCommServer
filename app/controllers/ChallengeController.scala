@@ -12,7 +12,7 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Success
+import scala.util.{Success, Try}
 
 @Singleton
 class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Downloader, futureRunner: FutureRunner, implicit val config: Configuration) extends KothController(cc) {
@@ -74,13 +74,13 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
   def view(id: Long): Action[AnyContent] = Action.async { implicit request =>
     challenges.view(id).map {
       case None => Results.NotFound
-      case Some(challenge) => Ok(views.html.challenge.view(challenge))
+      case Some(challenge) =>
+        Ok(views.html.challenge.view(challenge))
     }
   }
 
   def fetchEntries(id: Long): Action[AnyContent] = Action.async { implicit request =>
     this.challengeCheck(id) { (_, challenge) =>
-      var errors = List[String]()
       val future: Future[Seq[Entry]] =
         if (challenge.refId.isEmpty)
           Future.failed(new UnableToDownloadException("Unable to check Stack Exchange post. Please add the ID of the StackExchange challenge post"))
@@ -89,8 +89,11 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
             Future.sequence(entries.map(addEntry(_, challenge)))
           }
       future.transform { response => {
+        if (response.isFailure && !response.failed.get.isInstanceOf[UnableToDownloadException]){
+          throw response.failed.get
+        }
         val error = response.failed.map(_.getMessage).getOrElse("")
-        Success(Ok(views.html.challenge.view(challenge)).addingToSession(("error", error)))
+        Success(Ok(views.html.challenge.view(challenge, List(error))))
       }
       }
     }
@@ -145,7 +148,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
       }
       newChallenge
     })(challenge => {
-      Some((challenge.name, challenge.repoUrl, Some(Integer.parseInt(challenge.refId)), challenge.language, challenge.buildParameters, Some(challenge.status)))
+      Some((challenge.name, challenge.repoUrl, Try(Integer.parseInt(challenge.refId)).toOption, challenge.language, challenge.buildParameters, Some(challenge.status)))
     })
   )
 }

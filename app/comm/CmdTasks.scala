@@ -2,6 +2,8 @@ package comm
 
 import java.io.File
 
+import models.EntryVersion
+
 import scala.concurrent.{ExecutionContext, Future}
 import sys.process._
 import scala.sys.process.ProcessLogger
@@ -32,12 +34,12 @@ object CmdTasks {
   }
 
 
-  def BuildEntry(adapter: ConnectionAdapter, entry: Entry, cwd: File)(implicit executor: ExecutionContext): Future[ExecutionStatus] = {
+  def BuildEntry(adapter: ConnectionAdapter, entry: EntryVersion, cwd: File)(implicit executor: ExecutionContext): Future[ExecutionStatus] = {
     val command = adapter.runCommand(Seq("build", entry.name, entry.code))
     execute(command, cwd)
   }
 
-  def RunGame(adapter: ConnectionAdapter, seed: Long, entries: Seq[Entry], cwd: File)(implicit executor: ExecutionContext): Future[ExecutionStatus] = {
+  def RunGame(adapter: ConnectionAdapter, seed: Long, entries: Seq[EntryVersion], cwd: File)(implicit executor: ExecutionContext): Future[ExecutionStatus] = {
     val command = adapter.runCommand(Seq("run", seed.toString) ++ entries.map(e => e.name))
     execute(command, cwd)
   }

@@ -1,6 +1,7 @@
-@(challenge: Challenge)(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
+@(challenge: Challenge, errors: List[String] = List())(implicit request: play.api.mvc.RequestHeader, messagesProvider: MessagesProvider, configuration: play.api.Configuration)
 
 @import helpers.ViewLogic
+@import helper._
 @import org.ocpsoft.prettytime.PrettyTime;
 
 @main(title = challenge.name) {
@@ -8,11 +9,18 @@
         @if(ViewLogic.canEdit(challenge)) {
             <a class="button" href="@routes.TournamentController.create(challenge.id)">New run</a>
             <a class="button" href="@routes.ChallengeController.edit(challenge.id)">Edit</a>
-            <a class="button" href="@routes.ChallengeController.fetchEntries(challenge.id)">Fetch Entries</a>
+            <form method="post" action="@routes.ChallengeController.fetchEntries(challenge.id)">
+                @CSRF.formField
+                <input class="button" type="submit" value="Fetch Entries"/>
+            </form>
         }
         <div class="status @challenge.status.toString.toLowerCase">@challenge.status</div>
     </div>
-
+    <div class="alert alert-error">
+    @for(error <- errors) {
+        @error
+    }
+    </div>
     <h2>Entries</h2>
     @if(challenge.entries.isEmpty) {
         <span>No entries added yet!</span>
