@@ -11,19 +11,19 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
 
 
   def view(id: Long): Future[Option[User]] =
-    getOne {
+    getOne(id) {
       query
         .select("id,username,name,role")
         .fetch("entries", "id,currentName")
         .fetch("challenges", "id,name,createdAt")
-    }(id)
+    }
 
   def byUsername(username: String): Future[Option[User]] =
     execute {
       fetchByUsername(username)
     }
 
-  def insertOrUpdate(username: String, name: String, authentication: String = ""): Future[User] = {
+  def insertOrUpdate(username: String, name: String, authentication: String = ""): Future[User] =
     execute {
       val user = fetchByUsername(username) match {
         case Some(u) => u
@@ -31,7 +31,7 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
           val u = new User
           u.username = username
           u.role = User.UserRole.STANDARD
-          if (query.select("id").findCount() == 0){
+          if (query.select("id").findCount() == 0) {
             u.role = User.UserRole.ADMIN
           }
           u
@@ -43,20 +43,16 @@ class UserRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
       ebeanServer.save(user)
       user
     }
-  }
 
-  def update(user: User): Future[User] = {
-    execute {
-      ebeanServer.update(user)
-      user
-    }
-  }
+  override def fetchByRef(refId: String): Future[Option[User]] = this.byUsername(refId)
 
-  private def fetchByUsername(username: String): Option[User] = {
-    Option(query
-      .select("id,username,name,authentication,role")
-      .where().eq("username", username)
-      .findOne())
-  }
+  private def fetchByUsername(username: String): Option[User] =
+    Option(
+      query
+        .select("id,username,name,authentication,role")
+        .where().eq("username", username)
+        .findOne()
+    )
+
 
 }

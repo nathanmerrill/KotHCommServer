@@ -15,19 +15,12 @@ class EntryRepository @Inject()(val ebeanConfig: EbeanConfig, val executionConte
 
 
   def view(id: Long): Future[Option[Entry]] =
-    getOne {
+    getOneWhere(id) {
       query
         .fetch("versions", "id,name,createdAt")
         .fetch("owner", "id,name")
         .fetch("versions", "id,createdAt,versionId")
-    }(id)
+    }
 
-  def update(data: Entry): Future[Option[Entry]] = {
-    val toSave: Entry = new Entry
-    toSave.id = data.id
-    toSave.currentName = data.currentName
-    toSave.refId = data.refId
-    toSave.owner = data.owner
-    updateModel(data)
-  }
+
 }

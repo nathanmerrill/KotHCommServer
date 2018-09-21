@@ -106,7 +106,7 @@ class ChallengeController @Inject()(val cc: ControllerComponents, downloader: Do
       entry.challenge = challenge
       entry.currentName = data.name
       entry.refId = data.answerId
-      entries.insert(entry)
+      entries.insertOrUpdateByRef(entry.refId, entry)
     }.flatMap{ entry =>
       val version = new EntryVersion()
       version.code = data.body

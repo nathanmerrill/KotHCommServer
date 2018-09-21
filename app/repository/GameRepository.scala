@@ -10,10 +10,10 @@ class GameRepository @Inject()(val ebeanConfig: EbeanConfig, val executionContex
   val modelClass: Class[Game] = classOf[Game]
 
   def view(id: Long): Future[Option[Game]] =
-    getOne {
+    getOneWhere(id) {
       query
         .fetch("tournament", "")
         .fetch("scores", "score")
         .fetch("scores.tournamentEntry.version", "name")
-    }(id)
+    }
 }

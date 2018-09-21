@@ -18,40 +18,53 @@ abstract class BaseRepository[T <: BaseModel] {
 
   protected def query: Query[T] = ebeanServer.find(modelClass)
 
-  protected def execute[U](query: => U): Future[U] = Future[U] {
-    query
-  }(executionContext)
+  protected def execute[U](query: => U): Future[U] =
+    Future[U] {
+      query
+    }(executionContext)
 
   protected def getList[U](query: => Query[T]): Future[List[T]] =
     execute {
       query.findList().asScala.toList
     }
 
-  protected def getOne(query: => Query[T]): Long => Future[Option[T]] =
-    (id) => execute {
+  protected def getOneWhere(id: Long)(query: => Query[T]): Future[Option[T]] =
+    execute {
       Option(query.setId(id).findOne())
     }
 
-  def getOne(id: Long): Future[Option[T]] = getOne {
-    this.query
-  }(id)
+  protected def getOne(id: Long): Future[Option[T]] =
+    execute {
+      Option(query.setId(id).findOne())
+    }
 
-  protected def updateModel(data: T): Future[Option[T]] = Future {
-    val transaction = ebeanServer.beginTransaction
-    try {
-      val saved = query.setId(data.id).findOne()
-      if (saved != null) {
-        data.update()
-        transaction.commit()
+  def update(data: T): Future[Option[T]] =
+    execute {
+      ebeanServer.update(data)
+    }.flatMap { _ => getOne(data.id) }
+
+
+  def insert(data: T): Future[T] =
+    execute {
+      ebeanServer.insert(data)
+      data
+    }
+
+  def fetchByRef(refId: String): Future[Option[T]] =
+    execute {
+      Option(query
+        .select("*")
+        .where().eq("refId", refId)
+        .findOne())
+    }
+
+  def insertOrUpdateByRef(refId: String, data: T): Future[T] =
+    fetchByRef(refId).flatMap{opt =>
+      if (opt.isDefined) {
+        data.id = opt.get.id
+        this.update(data).map(_.get)
+      } else {
+        this.insert(data)
       }
-      Option(saved)
-    } finally transaction.end()
-  }(executionContext)
-
-
-  def insert(data: T): Future[T] = Future {
-    data.id = null
-    ebeanServer.insert(data)
-    data
-  }(executionContext)
+    }
 }
